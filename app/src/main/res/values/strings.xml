@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Vending Machine</string>
+    <string name="action_settings">Maintenance</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="reset_products">Reset Products</string>
+    <string name="cancel">Cancel</string>
+    <string name="exit_toast">Please click BACK again to exit</string>
+
+    <string name="select_product">Please select a product</string>
+    <string name="product_button_format">%1$s\n%2$s</string>
+    <string name="coin">0.10</string>
+    <string name="select_coin">Please insert coins</string>
+    <string name="coins_inserted">Coins Inserted</string>
+    <string name="product_price">Product Price</string>
+    <string name="product_no_quantity">%1$s\nNo Quantity</string>
+    <string name="zero_amount">0.00</string>
+    <string name="alert_title_get_product">"THANK YOU!"</string>
+    <string name="alert_text_get_product">"Please get your product\nCoins returned as change"</string>
+
+    <string name="alert_title_out_of_order">"OUT OF ORDER!"</string>
+    <string name="alert_text_enter_maintenance">"Enter maintenance!"</string>
+    <string name="alert_out_of_order_reset">"LOAD COINS"</string>
+
+</resources>

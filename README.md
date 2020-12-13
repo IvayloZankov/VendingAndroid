@@ -1,2 +1,2 @@
 # VendingAndroid
-Vending Machine for Android
+Vending Machine implementation for Android
