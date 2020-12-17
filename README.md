@@ -4,14 +4,14 @@
 
 Vending Machine implementation for Android.
 
-# Main Activity
+## Main Activity
 
 App get products from server and load them in the machine. Coins are preloaded.
 If there are no coins for change "Out of order" message appears with Load coins button.
 Load coins button resets coins.
 App loads products screen.
 
-#Products Screen
+## Products Screen
 
 Products displayed with names and price.
 If product has no quantity message "No quantity" instead of price
@@ -19,7 +19,7 @@ Reset products button resets them from server.
 Click on a product leads to insert coins screen.
 Back button shows toast for app exit. Click again for exit.
 
-#Insert Coins Screen
+## Insert Coins Screen
 
 Insert coins to meet the products price and get the product.
 Cancel order with back button ot with cancel button.
