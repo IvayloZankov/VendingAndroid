@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.vending.R;
 import com.example.vending.backend.VM;
@@ -52,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_maintenance) {
+            Toast.makeText(this, "In development!", Toast.LENGTH_LONG).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
