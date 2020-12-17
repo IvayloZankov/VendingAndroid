@@ -16,11 +16,18 @@
     <string name="product_price">Product Price</string>
     <string name="product_no_quantity">%1$s\nNo Quantity</string>
     <string name="zero_amount">0.00</string>
-    <string name="alert_title_get_product">"THANK YOU!"</string>
-    <string name="alert_text_get_product">"Please get your product\nCoins returned as change"</string>
+    <string name="alert_title_thank_you">THANK YOU!</string>
+    <string name="alert_text_get_product">Please get your product</string>
+    <string name="alert_text_get_change">Coins returned as change</string>
+    <string name="alert_title_order_canceled">ORDER CANCELLED!</string>
+    <string name="alert_text_order_canceled">Coins returned as change"</string>
 
-    <string name="alert_title_out_of_order">"OUT OF ORDER!"</string>
-    <string name="alert_text_enter_maintenance">"Enter maintenance!"</string>
+    <string name="alert_title_out_of_order">OUT OF ORDER!</string>
+    <string name="alert_text_enter_maintenance">Enter maintenance!</string>
     <string name="alert_out_of_order_reset">"LOAD COINS"</string>
+    <string name="no_internet">No internet connection!</string>
+    <string name="check_connection">Please check your connection</string>
+    <string name="checking_connection">Connecting…</string>
+    <string name="loading_products">Loading Products</string>
 
 </resources>

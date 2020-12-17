@@ -5,23 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorOnPrimary"
-    tools:context=".screen.CoinsFragment">
+    tools:context=".device.CoinsFragment">
 
     <TextView
-        android:visibility="gone"
-        android:id="@+id/coins_insert_text"
+        android:id="@+id/product_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:gravity="center_horizontal"
-        android:text="@string/select_coin"
-        android:layout_marginTop="16dp"
+        android:layout_margin="16dp"
         android:textSize="24dp"
         android:textStyle="bold"
-        android:textColor="?attr/colorPrimary"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:tooltipText="ProductName"/>
 
     <TextView
         android:id="@+id/coins_inserted_text"
@@ -36,7 +35,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/product_price_text"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/coins_insert_text" />
+        app:layout_constraintTop_toBottomOf="@id/product_name" />
 
     <TextView
         android:id="@+id/coins_inserted_amount"
@@ -67,8 +66,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/coins_inserted_text"
-        app:layout_constraintTop_toBottomOf="@id/coins_insert_text" />
-
+        app:layout_constraintTop_toBottomOf="@id/product_name" />
 
     <TextView
         android:id="@+id/product_price"
@@ -96,13 +94,13 @@
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/fab"
-        app:layout_constraintTop_toBottomOf="@id/coins_inserted_amount" >
+        app:layout_constraintTop_toBottomOf="@id/coins_inserted_amount">
 
         <GridLayout
             android:id="@+id/coins_list"
             android:columnCount="2"
             android:useDefaultMargins="true"
+            android:paddingBottom="300dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -110,25 +108,15 @@
     </ScrollView>
 
     <Button
-        android:visibility="gone"
-        android:id="@+id/button_second"
+        android:id="@+id/button_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="32dp"
         android:text="@string/cancel"
+        android:textColor="@color/white"
+        android:background="@drawable/coin_amounts_button_round_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_delete" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

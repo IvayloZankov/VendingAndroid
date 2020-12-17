@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorOnPrimary"
-    tools:context=".screen.ProductsFragment">
+    tools:context=".device.ProductsFragment">
 
     <TextView
         android:visibility="gone"
@@ -39,6 +39,7 @@
             android:id="@+id/products_list"
             android:columnCount="2"
             android:useDefaultMargins="true"
+            android:paddingBottom="100dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -46,7 +47,6 @@
     </ScrollView>
 
     <Button
-        android:visibility="gone"
         android:id="@+id/button_reset_products"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

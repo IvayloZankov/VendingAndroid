@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.vending">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,7 +13,7 @@
         android:theme="@style/Theme.Vending">
 
         <activity
-            android:name="com.example.vending.screen.MainActivity"
+            android:name="com.example.vending.device.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Vending.NoActionBar">

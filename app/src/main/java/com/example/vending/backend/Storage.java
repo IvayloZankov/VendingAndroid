@@ -1,4 +1,4 @@
-package com.example.vending.machine;
+package com.example.vending.backend;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

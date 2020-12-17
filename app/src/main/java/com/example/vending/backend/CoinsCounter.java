@@ -1,22 +1,11 @@
-package com.example.vending.machine;
-
-
-import android.widget.TextView;
+package com.example.vending.backend;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Class that handles the insert and returning coins with successful or cancel order
  */
 public class CoinsCounter {
-
-    public CoinsCounter() {
-    }
-
-//    private double insertedCoinsAmountTemp = 0.00;
-//    private ArrayList<ItemData> coinsTemp = new ArrayList<>();
 
     /**
      * Insert coins method
@@ -126,33 +115,17 @@ public class CoinsCounter {
      */
     public void addCoinsToStorage(Storage<ItemData> storageUser, Storage<ItemData> storageMachine) {
         for (int i = 0; i < storageUser.getSize(); i++) {
-            String tempCoinName = storageUser.getItem(i).getName();
+            ItemData userCoin = storageUser.getItem(i);
+            String tempCoinName = userCoin.getName();
             for (int j = 0; j < storageMachine.getSize(); j++) {
-                String storageCoinName = storageMachine.getItem(i).getName();
+                ItemData coinMachine = storageMachine.getItem(j);
+                String storageCoinName = coinMachine.getName();
                 if (tempCoinName.equalsIgnoreCase(storageCoinName)) {
-                    storageMachine.getItem(i).increaseQuantity(1);
+                    coinMachine.increaseQuantity(userCoin.getQuantity());
                     break;
                 }
             }
         }
 //        new StateSaver().updateCoins(coins);
-
-//        storageMachine = new Storage<>();
     }
-
-//    /**
-//     * Returns inserted coins to the user and reset
-//     */
-//    public void returnInsertedCoins() {
-//        if (coinsTemp.getSize() > 0) {
-//            //update to visual
-//
-//
-////            for (CoinsData coin : coinsTemp) {
-////                System.out.print("(" + coin.getQuantity() + ")" + " " + coin.getName() + " ");
-////            }
-////            System.out.println();
-//            coinsTemp = new Storage<>();
-//        }
-//    }
 }

@@ -1,4 +1,4 @@
-package com.example.vending.machine;
+package com.example.vending.backend;
 
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public class VM {
     }
 
     public void loadProduct(String name, double price, int quantity) {
-        productsStorage.loadItem(productsStorage.getSize() + 1, new ItemData(name, price, quantity));
+        productsStorage.loadItem(productsStorage.getSize(), new ItemData(name, price, quantity));
 //        new StateSaver().updateProducts(this.products);
     }
 
@@ -96,8 +96,16 @@ public class VM {
         return coinsStorageMachine.getStorage().get(0).getQuantity() > 40;
     }
 
-    public void loadProductsToStorage() {
+    public void initProductsStorage() {
         productsStorage = new Storage<>();
+    }
+
+    public void initUserCoinsStorage() {
+        coinsStorageUser = new Storage<>();
+    }
+
+    public void loadProductsToStorage() {
+        initProductsStorage();
         productsStorage.loadItem(0, new ItemData("Coca-Cola", 0.60, 3));
         productsStorage.loadItem(1, new ItemData("Mars", 1.10, 3));
         productsStorage.loadItem(2, new ItemData("Water", 0.60, 3));
@@ -118,9 +126,5 @@ public class VM {
         coinsStorageMachine.loadItem(3, new ItemData("fifty_cents", 0.50, 10));
         coinsStorageMachine.loadItem(4, new ItemData("one_eur", 1.00, 5));
         coinsStorageMachine.loadItem(5, new ItemData("two_eur", 2.00, 0));
-    }
-
-    public void initUserCoinsStorage() {
-        coinsStorageUser = new Storage<>();
     }
 }
