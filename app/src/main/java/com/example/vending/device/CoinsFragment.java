@@ -89,12 +89,14 @@ public class CoinsFragment extends Fragment {
                     coinsCounter.insertCoin(coinsMachine.getItem(finalI), vm.getUserCoins());
                     coinsAmount.setText(insertedAmount);
                     if (Double.parseDouble(insertedAmount) >= Double.parseDouble(productPrice.getText().toString())) {
+                        disableButtonsInView(coinsList);
                         button.setEnabled(false);
                         coinsCounter.addCoinsToStorage(vm.getUserCoins(), vm.getMachineCoins());
                         Storage<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, vm.getMachineCoins());
                         vm.decreaseProductQuantity(selectedProduct);
                         showGetCoinsAlert(coinsForReturn, false);
                         vm.initUserCoinsStorage();
+
                     }
                 }
             });
@@ -157,6 +159,15 @@ public class CoinsFragment extends Fragment {
         coinView.setGravity(Gravity.CENTER);
         coinView.setTextSize(TypedValue.COMPLEX_UNIT_SP,14);
         return coinView;
+    }
+
+    private void disableButtonsInView(View view) {
+        ViewGroup group = (ViewGroup)view;
+
+        for ( int i = 0 ; i < group.getChildCount() ; i++ ) {
+            group.getChildAt(i).setEnabled(false);
+        }
+
     }
 
     private void handleBackButton() {
