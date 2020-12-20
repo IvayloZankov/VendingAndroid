@@ -9,12 +9,11 @@
     <string name="exit_toast">Please click BACK again to exit</string>
 
     <string name="select_product">Please select a product</string>
-    <string name="product_button_format">%1$s\n%2$s</string>
     <string name="coin">0.10</string>
     <string name="select_coin">Please insert coins</string>
     <string name="coins_inserted">Coins Inserted</string>
     <string name="product_price">Product Price</string>
-    <string name="product_no_quantity">%1$s\nNo Quantity</string>
+    <string name="product_no_quantity">No Quantity</string>
     <string name="zero_amount">0.00</string>
     <string name="alert_title_thank_you">THANK YOU!</string>
     <string name="alert_text_get_product">Please get your product</string>

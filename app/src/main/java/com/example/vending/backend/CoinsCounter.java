@@ -25,21 +25,9 @@ public class CoinsCounter {
                 break;
             }
         }
-//        for (Map<Integer, ItemData> coinTemp : storage) {
-//            if (coin.getName().equals(selectedCoinName)) {
-//                coin.increaseQuantity(1);
-//                isPresent = true;
-//            }
-//        }
         if (!isPresent) {
-//            int coinPlace = 0;
-//            if (storage.getSize() > 0) {
-//                coinPlace = storage.getSize() + 1;
-//            }
             storage.loadItem(storage.getSize(), new ItemData(selectedCoinName, selectedCoinValue, 1));
         }
-//        insertedCoinsAmountTemp = getSumValue(insertedCoinsAmountTemp, selectedCoinValue);
-//        return insertedCoinsAmountTemp;
     }
 
     /**
@@ -77,7 +65,6 @@ public class CoinsCounter {
         BigDecimal calculatedChangeDecimal = new BigDecimal(change);
 
         while (Double.parseDouble(calculatedChangeDecimal.toString()) > 0.00) {
-//            getHighCoinValueAvailable();
             int coinIndex = 0;
             for (int i = 0; i < storage.getSize(); i++) {
                 int quantity = storage.getItem(i).getQuantity();
@@ -89,12 +76,10 @@ public class CoinsCounter {
                     coinIndex = i;
                 }
             }
-//            int quantityTemp = 0;
             while (storage.getItem(coinIndex).getPrice() <= Double.parseDouble(calculatedChangeDecimal.toString()) &&
                     storage.getItem(coinIndex).getQuantity() > 0) {
                 storage.getItem(coinIndex).decreaseQuantity();
                 insertCoin(storage.getItem(coinIndex), coinsAsChange);
-//                quantityTemp ++;
                 BigDecimal coinValueDecimal = BigDecimal.valueOf(storage.getItem(coinIndex).getPrice());
                 calculatedChangeDecimal = calculatedChangeDecimal.subtract(coinValueDecimal);
             }
@@ -102,13 +87,6 @@ public class CoinsCounter {
         return coinsAsChange;
 //        new StateSaver().updateCoins(coins);
     }
-
-//    private ItemData getHighCoinValueAvailable(Storage<ItemData> storage) {
-//        ItemData item
-//        for (int i = 0; i < storage.getSize(); i++) {
-//            if (storage.getItem(i).get)
-//        }
-//    }
 
     /**
      * Adds inserted coins to the coins in the machine

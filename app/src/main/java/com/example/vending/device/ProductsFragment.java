@@ -18,6 +18,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
 import com.example.vending.backend.ItemData;
@@ -31,12 +32,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Locale;
 
 public class ProductsFragment extends Fragment {
 
-    ViewGroup productsList;
+    RecyclerView productsList;
+    ProductsRecyclerViewAdapter adapter;
+
     VM vm;
+    NetworkHandler network;
 
     boolean doubleBackToExitPressedOnce = false;
 
@@ -49,25 +54,22 @@ public class ProductsFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        vm = new VM();
+        network = new NetworkHandler(getContext());
 
         handleBackButton();
 
         productsList = view.findViewById(R.id.products_list);
-        vm = new VM();
+        adapter = new ProductsRecyclerViewAdapter(vm.getProducts());
+        productsList.setAdapter(adapter);
 
         if (!vm.canReturnChange()) {
             showOutOfOrderAlert();
         }
 
-        Storage<ItemData> products = vm.getProducts();
-
-        for (int i = 0; i < products.getSize(); i++) {
-            createItemButton(getView(), products.getItem(i));
-        }
         view.findViewById(R.id.button_reset_products).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NetworkHandler network = new NetworkHandler(getContext());
                 if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
                     return;
                 }
@@ -79,36 +81,6 @@ public class ProductsFragment extends Fragment {
                 }
             }
         });
-    }
-
-    private void createItemButton(View view, ItemData product) {
-        Button button = new Button(view.getContext());
-        setButtonsStyle(button);
-        this.productsList.addView(button);
-        if (product.getQuantity() > 0) {
-            String price = String.format(Locale.CANADA, "%.2f", (product.getPrice()));
-            button.setText(getResources().getString(R.string.product_button_format, product.getName(), price));
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
-                        return;
-                    }
-                    mLastClickTime = SystemClock.elapsedRealtime();
-                    new VM().setSelectedProduct(product);
-                    NavHostFragment.findNavController(ProductsFragment.this)
-                            .navigate(R.id.action_FirstFragment_to_SecondFragment);
-                }
-            });
-        } else {
-            button.setText(getResources().getString(R.string.product_no_quantity, product.getName()));
-        }
-    }
-
-    private void setButtonsStyle(Button button) {
-        button.setBackgroundResource(R.drawable.product_button_round_background);
-        button.setTextColor(getResources().getColor(R.color.design_default_color_secondary_variant));
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
     }
 
     private void showOutOfOrderAlert() {
@@ -143,31 +115,10 @@ public class ProductsFragment extends Fragment {
 
         @Override
         protected void onPostExecute(final JSONObject json) {
-            VM vm = new VM();
             vm.initProductsStorage();
             JSONArray jsonArray = JsonUtil.convertToArray(json, "data");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject item = null;
-                try {
-                    item = jsonArray.getJSONObject(i);
-                vm.loadProduct(
-                        item.getString("name"),
-                        Double.parseDouble(item.getString("price")),
-                        Integer.parseInt(item.getString("quantity"))
-                );
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            productsList.removeAllViews();
-
-            Storage<ItemData> products = vm.getProducts();
-
-            for (int i = 0; i < products.getSize(); i++) {
-                createItemButton(getView(), products.getItem(i));
-            }
-
+            vm.loadProductsToStorage(jsonArray);
+            adapter.refreshScreen(vm.getProducts());
             loadingDialog.dismiss();
         }
     }

@@ -1,12 +1,18 @@
 package com.example.vending.backend;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class VM {
 
     private static ItemData selectedProduct;
 
-    private static Storage<ItemData> productsStorage;
+    private static List<ItemData> productsStorage;
     private static Storage<ItemData> coinsStorageMachine;
     private static Storage<ItemData> coinsStorageUser;
 
@@ -22,7 +28,7 @@ public class VM {
     }
 
     public void loadProduct(String name, double price, int quantity) {
-        productsStorage.loadItem(productsStorage.getSize(), new ItemData(name, price, quantity));
+        productsStorage.add(productsStorage.size(), new ItemData(name, price, quantity));
 //        new StateSaver().updateProducts(this.products);
     }
 
@@ -32,7 +38,7 @@ public class VM {
     }
 
     public void removeProduct(int position) {
-        productsStorage.removeItem(position);
+        productsStorage.remove(position);
 //        new StateSaver().updateProducts(products);
     }
 
@@ -42,7 +48,7 @@ public class VM {
     }
 
     public void increaseProductQuantity(int productIndex, int quantity) {
-        productsStorage.getItem(productIndex).increaseQuantity(quantity);
+        productsStorage.get(productIndex).increaseQuantity(quantity);
 //        new StateSaver().updateProducts(this.products);
     }
 
@@ -52,25 +58,25 @@ public class VM {
     }
 
     public void decreaseProductQuantity(ItemData product) {
-        for (int i = 0; i < productsStorage.getSize(); i++) {
-            String name = productsStorage.getItem(i).getName();
+        for (int i = 0; i < productsStorage.size(); i++) {
+            String name = productsStorage.get(i).getName();
             if (name.equalsIgnoreCase(product.getName())) {
-                productsStorage.getItem(i).decreaseQuantity();
+                productsStorage.get(i).decreaseQuantity();
                 break;
             }
         }
     }
 
-    public Storage<ItemData> getProducts() {
+    public List<ItemData> getProducts() {
         return productsStorage;
     }
 
-    public Map<Integer, ItemData> getProductsStorage() {
-        return productsStorage.getStorage();
+    public List<ItemData> getProductsStorage() {
+        return productsStorage;
     }
 
     public int getProductsSize() {
-        return productsStorage.getSize();
+        return productsStorage.size();
     }
 
     public Storage<ItemData> getMachineCoins() {
@@ -97,25 +103,28 @@ public class VM {
     }
 
     public void initProductsStorage() {
-        productsStorage = new Storage<>();
+        productsStorage = new ArrayList<>();
     }
 
     public void initUserCoinsStorage() {
         coinsStorageUser = new Storage<>();
     }
 
-    public void loadProductsToStorage() {
+    public void loadProductsToStorage(JSONArray jsonArray) {
         initProductsStorage();
-        productsStorage.loadItem(0, new ItemData("Coca-Cola", 0.60, 3));
-        productsStorage.loadItem(1, new ItemData("Mars", 1.10, 3));
-        productsStorage.loadItem(2, new ItemData("Water", 0.60, 3));
-        productsStorage.loadItem(3, new ItemData("Croissant", 0.50, 3));
-        productsStorage.loadItem(4, new ItemData("Snickers", 0.60, 3));
-        productsStorage.loadItem(5, new ItemData("Orange Juice", 0.40, 3));
-        productsStorage.loadItem(6, new ItemData("Almonds", 1.40, 3));
-        productsStorage.loadItem(7, new ItemData("Peanuts", 0.90, 3));
-        productsStorage.loadItem(8, new ItemData("Chips", 0.70, 3));
-        productsStorage.loadItem(9, new ItemData("Chocolate", 1.20, 3));
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject item;
+            try {
+                item = jsonArray.getJSONObject(i);
+                loadProduct(
+                        item.getString("name"),
+                        Double.parseDouble(item.getString("price")),
+                        Integer.parseInt(item.getString("quantity"))
+                );
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void loadCoinsToStorage() {

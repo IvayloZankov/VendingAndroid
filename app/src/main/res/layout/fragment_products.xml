@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/products_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorOnPrimary"
-    tools:context=".device.ProductsFragment">
+    tools:context=".device.ProductsFragment"
+    >
 
     <TextView
         android:visibility="gone"
@@ -23,28 +25,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/products_list"
+        android:name="com.example.vending.device.ItemFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@id/select_product_text"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="32dp"
+        android:paddingBottom="100dp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" >
-
-        <GridLayout
-            android:id="@+id/products_list"
-            android:columnCount="2"
-            android:useDefaultMargins="true"
-            android:paddingBottom="100dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:orientation="horizontal" />
-    </ScrollView>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:spanCount="2"
+        tools:context=".device.ItemFragment"
+        tools:listitem="@layout/product_item" />
 
     <Button
         android:id="@+id/button_reset_products"

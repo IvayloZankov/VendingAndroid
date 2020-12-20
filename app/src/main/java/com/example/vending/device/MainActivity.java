@@ -23,12 +23,13 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
+    VM vm;
     NetworkHandler network;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        VM vm = new VM();
+        vm = new VM();
         network = new NetworkHandler(getApplicationContext());
         if (network.isNetworkAvailable()) {
             new InitProducts().execute();
@@ -61,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class InitProducts extends AsyncTask<String, String, JSONObject> {
-        ProgressDialog loadingDialog;
 
+        ProgressDialog loadingDialog;
 
         @Override
         protected void onPreExecute() {
@@ -80,23 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(final JSONObject json) {
-            //dismiss dialog
-            VM vm = new VM();
             vm.initProductsStorage();
             JSONArray jsonArray = JsonUtil.convertToArray(json, "data");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject item = null;
-                try {
-                    item = jsonArray.getJSONObject(i);
-                    vm.loadProduct(
-                            item.getString("name"),
-                            Double.parseDouble(item.getString("price")),
-                            Integer.parseInt(item.getString("quantity"))
-                    );
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+            vm.loadProductsToStorage(jsonArray);
             loadingDialog.dismiss();
             setContentView(R.layout.activity_main);
             Toolbar toolbar = findViewById(R.id.toolbar);
