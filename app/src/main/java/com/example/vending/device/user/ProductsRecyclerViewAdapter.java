@@ -1,4 +1,4 @@
-package com.example.vending.device;
+package com.example.vending.device.user;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.fragment.NavHostFragment;
@@ -30,7 +30,7 @@ public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRe
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.product_item, parent, false);
+                .inflate(R.layout.item_product, parent, false);
         return new ViewHolder(view);
     }
 
@@ -49,7 +49,7 @@ public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRe
                     mLastClickTime = SystemClock.elapsedRealtime();
                     new VM().setSelectedProduct(holder.mItem);
                     NavHostFragment.findNavController(FragmentManager.findFragment(view))
-                            .navigate(R.id.action_FirstFragment_to_SecondFragment);
+                            .navigate(R.id.action_ProductsFragment_to_CoinsFragment);
                 }
             });
         } else {

@@ -1,4 +1,4 @@
-package com.example.vending.device;
+package com.example.vending.device.user;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -134,28 +134,27 @@ public class CoinsFragment extends Fragment {
             ViewGroup layout = alertLayout.findViewById(R.id.coins_change_list);
             for (int i = 0; i < coinsForReturn.getSize(); i++) {
                 ItemData coinItem = coinsForReturn.getItem(i);
-                for (int j = 0; j < coinItem.getQuantity(); j++) {
-                    layout.addView(createReturnCoinView(coinItem));
-                }
+                int quantity = coinItem.getQuantity();
+                layout.addView(createReturnCoinView(coinItem, quantity));
             }
             alertDialogBuilder.setView(layout);
         }
         alertDialogBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 NavHostFragment.findNavController(CoinsFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_FirstFragment);
+                        .navigate(R.id.action_CoinsFragment_to_ProductsFragment);
             }
         })
                 .setCancelable(false)
                 .show();
     }
 
-    private TextView createReturnCoinView(ItemData coinItem) {
+    private TextView createReturnCoinView(ItemData coinItem, int quantity) {
         TextView coinView = new TextView(getContext());
         coinView.setBackgroundResource(R.drawable.coin_button_circle_background_small);
         coinView.setTextColor(getResources().getColor(R.color.white));
         String price = String.format(Locale.CANADA, "%.2f", (coinItem.getPrice()));
-        coinView.setText(price);
+        coinView.setText(getString(R.string.alert_text_order_coins_holder, String.valueOf(quantity), price));
         coinView.setGravity(Gravity.CENTER);
         coinView.setTextSize(TypedValue.COMPLEX_UNIT_SP,14);
         return coinView;

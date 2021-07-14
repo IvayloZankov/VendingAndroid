@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -116,6 +117,7 @@ public class VM {
             JSONObject item;
             try {
                 item = jsonArray.getJSONObject(i);
+//                Log.e("JSON", item.toString());
                 loadProduct(
                         item.getString("name"),
                         Double.parseDouble(item.getString("price")),
@@ -135,5 +137,9 @@ public class VM {
         coinsStorageMachine.loadItem(3, new ItemData("fifty_cents", 0.50, 10));
         coinsStorageMachine.loadItem(4, new ItemData("one_eur", 1.00, 5));
         coinsStorageMachine.loadItem(5, new ItemData("two_eur", 2.00, 0));
+    }
+
+    public List<MaintenanceOption> getMaintenanceOptions() {
+        return new ArrayList<>(Arrays.asList(MaintenanceOption.values()));
     }
 }

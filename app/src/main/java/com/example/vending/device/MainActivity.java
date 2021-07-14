@@ -1,15 +1,20 @@
 package com.example.vending.device;
 
 import android.app.ProgressDialog;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.vending.R;
 import com.example.vending.backend.VM;
@@ -21,18 +26,31 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class MainActivity extends AppCompatActivity {
 
     VM vm;
     NetworkHandler network;
 
+    ProgressDialog loadingDialog;
+
+    ExecutorService executor;
+
+    int counts;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
         vm = new VM();
         network = new NetworkHandler(getApplicationContext());
         if (network.isNetworkAvailable()) {
-            new InitProducts().execute();
+//            initLoadingDialog();
+            initProducts();
         } else {
             vm.initProductsStorage();
             setContentView(R.layout.activity_main);
@@ -55,39 +73,84 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_maintenance) {
-            Toast.makeText(this, "In development!", Toast.LENGTH_LONG).show();
+            //TODO button at maintenance fragment
+            Fragment primaryNavigationFragment = getSupportFragmentManager().getPrimaryNavigationFragment();
+            NavHostFragment.findNavController(primaryNavigationFragment)
+                    .navigate(R.id.action_MaintenanceFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private class InitProducts extends AsyncTask<String, String, JSONObject> {
+    private void initProducts() {
+        executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper()) {
+            @Override public void handleMessage(Message msg) {
+                Bundle bundle = msg.getData();
+                String jsonString = bundle.getString("products");
 
-        ProgressDialog loadingDialog;
+                JSONObject json = null;
+                try {
+                    json = new JSONObject(jsonString);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                vm.initProductsStorage();
+                JSONArray jsonArray = JsonUtil.convertToArray(json, "data");
+                if (jsonArray != null) {
+                    vm.loadProductsToStorage(jsonArray);
+                }
+                setContentView(R.layout.activity_main);
+                Toolbar toolbar = findViewById(R.id.toolbar);
+                setSupportActionBar(toolbar);
+//                loadingDialog.dismiss();
+            }
+        };
 
-        @Override
-        protected void onPreExecute() {
-            loadingDialog = new ProgressDialog(MainActivity.this);
-            loadingDialog.setMessage(getResources().getString(R.string.loading_products));
-            loadingDialog.setIndeterminate(false);
-            loadingDialog.setCancelable(false);
-            loadingDialog.show();
-        }
+        Runnable runnable = new Runnable() {
+            public void run() {
+                JSONObject json = new JsonUtil().getObject(new ServerRequest().getResponse(RequestUrl.GET_PRODUCTS.toString()));
+                String jsonString = json.toString();
+                Message msg = handler.obtainMessage();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("products", jsonString);
+                msg.setData(bundle);
+                handler.sendMessage(msg);
+            }
+        };
 
-        @Override
-        protected JSONObject doInBackground(String... strings) {
-            return new JsonUtil().getObject(new ServerRequest().getResponse(RequestUrl.GET_PRODUCTS.toString()));
-        }
+        Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
+                new CountDownTimer(5000, 1000){
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                    }
 
-        @Override
-        protected void onPostExecute(final JSONObject json) {
-            vm.initProductsStorage();
-            JSONArray jsonArray = JsonUtil.convertToArray(json, "data");
-            vm.loadProductsToStorage(jsonArray);
-            loadingDialog.dismiss();
-            setContentView(R.layout.activity_main);
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-        }
+                    @Override
+                    public void onFinish() {
+                        Log.e("TASK FINISHED:", String.valueOf(counts));
+                        if (counts == 4) {
+                            executor.shutdown();
+                        }
+                        counts++;
+                    }
+                }.start();
+            }
+        };
+        counts = 1;
+        executor.submit(runnable);
+        executor.submit(runnable2);
+        executor.submit(runnable2);
+        executor.submit(runnable2);
+        executor.submit(runnable2);
+    }
+
+    private void initLoadingDialog() {
+        loadingDialog = new ProgressDialog(MainActivity.this);
+        loadingDialog.setMessage(getResources().getString(R.string.loading_products));
+        loadingDialog.setIndeterminate(false);
+        loadingDialog.setCancelable(false);
+        loadingDialog.show();
     }
 }

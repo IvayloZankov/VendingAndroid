@@ -15,14 +15,14 @@ public class ServerRequest {
     public InputStream getResponse(String requestUrl, Map<String, String> headers, Map<String, String> params) {
         String requestMethod;
 
-        HttpsURLConnection connection;
+        HttpsURLConnection connection = null;
 
         try {
             URL url = new URL(BASE_URL + requestUrl);
             connection = (HttpsURLConnection) url.openConnection();
 
             int code = connection.getResponseCode();
-            if (code !=  200) {
+            if (code != 200) {
                 throw new IOException("Invalid response from server: " + code);
             }
 
@@ -45,10 +45,10 @@ public class ServerRequest {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-//        } finally {
-//            if (connection != null) {
-//                connection.disconnect();
-//            }
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 

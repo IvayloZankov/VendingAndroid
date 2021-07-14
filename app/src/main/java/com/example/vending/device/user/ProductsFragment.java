@@ -1,17 +1,12 @@
-package com.example.vending.device;
+package com.example.vending.device.user;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -21,19 +16,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.backend.ItemData;
-import com.example.vending.backend.Storage;
 import com.example.vending.backend.VM;
-import com.example.vending.server.JsonUtil;
-import com.example.vending.server.RequestUrl;
-import com.example.vending.server.ServerRequest;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.List;
-import java.util.Locale;
+import com.example.vending.device.NetworkHandler;
 
 public class ProductsFragment extends Fragment {
 
@@ -50,8 +34,6 @@ public class ProductsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_products, container, false);
     }
 
-    private long mLastClickTime = 0;
-
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         vm = new VM();
@@ -66,21 +48,6 @@ public class ProductsFragment extends Fragment {
         if (!vm.canReturnChange()) {
             showOutOfOrderAlert();
         }
-
-        view.findViewById(R.id.button_reset_products).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
-                    return;
-                }
-                mLastClickTime = SystemClock.elapsedRealtime();
-                if (network.isNetworkAvailable()) {
-                    new ReloadProducts().execute();
-                } else {
-                    network.showNoInternetDialog(getContext());
-                }
-            }
-        });
     }
 
     private void showOutOfOrderAlert() {
@@ -89,38 +56,11 @@ public class ProductsFragment extends Fragment {
         alertDialogBuilder.setMessage(R.string.alert_text_enter_maintenance);
         alertDialogBuilder.setPositiveButton(R.string.alert_out_of_order_reset, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                new VM().loadCoinsToStorage();
+                NavHostFragment.findNavController(getParentFragment())
+                        .navigate(R.id.action_MaintenanceFragment);
             }
                 })
         .setCancelable(false).show();
-    }
-
-    private class ReloadProducts extends AsyncTask<String, String, JSONObject> {
-
-        ProgressDialog loadingDialog;
-
-        @Override
-        protected void onPreExecute() {
-            loadingDialog = new ProgressDialog(getContext());
-            loadingDialog.setMessage(getResources().getString(R.string.loading_products));
-            loadingDialog.setIndeterminate(false);
-            loadingDialog.setCancelable(false);
-            loadingDialog.show();
-        }
-
-        @Override
-        protected JSONObject doInBackground(String... strings) {
-            return new JsonUtil().getObject(new ServerRequest().getResponse(RequestUrl.GET_PRODUCTS.toString()));
-        }
-
-        @Override
-        protected void onPostExecute(final JSONObject json) {
-            vm.initProductsStorage();
-            JSONArray jsonArray = JsonUtil.convertToArray(json, "data");
-            vm.loadProductsToStorage(jsonArray);
-            adapter.refreshScreen(vm.getProducts());
-            loadingDialog.dismiss();
-        }
     }
 
     private void handleBackButton() {
