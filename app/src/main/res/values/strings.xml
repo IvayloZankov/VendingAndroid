@@ -10,9 +10,6 @@
     <string name="exit">Exit</string>
     <string name="exit_toast">Click BACK again to exit</string>
 
-    <string name="select_product">Please select a product</string>
-    <string name="coin">0.10</string>
-    <string name="select_coin">Please insert coins</string>
     <string name="coins_inserted">Coins Inserted</string>
     <string name="product_price">Product Price</string>
     <string name="product_no_quantity">No Quantity</string>

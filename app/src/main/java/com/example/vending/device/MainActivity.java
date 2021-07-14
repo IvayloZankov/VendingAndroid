@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import com.example.vending.R;
 import com.example.vending.backend.VM;
 import com.example.vending.server.JsonUtil;
+import com.example.vending.server.RequestMethod;
 import com.example.vending.server.RequestUrl;
 import com.example.vending.server.ServerRequest;
 
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         Runnable runnable = new Runnable() {
             public void run() {
-                JSONObject json = new JsonUtil().getObject(new ServerRequest().getResponse(RequestUrl.GET_PRODUCTS.toString()));
+                JSONObject json = new ServerRequest().getResponse(RequestMethod.GET, RequestUrl.GET_PRODUCTS.toString());
                 String jsonString = json.toString();
                 Message msg = handler.obtainMessage();
                 Bundle bundle = new Bundle();

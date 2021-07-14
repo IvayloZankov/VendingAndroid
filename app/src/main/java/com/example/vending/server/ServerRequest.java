@@ -1,62 +1,93 @@
 package com.example.vending.server;
 
-import javax.net.ssl.HttpsURLConnection;
+import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Map;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.FieldMap;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
+import retrofit2.http.HeaderMap;
+import retrofit2.http.POST;
+import retrofit2.http.Url;
 
 public class ServerRequest {
 
     final String BASE_URL = "https://raw.githubusercontent.com/ivailo-zankov/VendingMachineJava/master/files/json/";
 
-    public InputStream getResponse(String requestUrl, Map<String, String> headers, Map<String, String> params) {
-        String requestMethod;
-
-        HttpsURLConnection connection = null;
+    public JSONObject getResponse(
+            RequestMethod reqMethod,
+            String url,
+            Map<String, String> headers,
+            Map<String, String> params) {
 
         try {
-            URL url = new URL(BASE_URL + requestUrl);
-            connection = (HttpsURLConnection) url.openConnection();
+            String reqUrl = BASE_URL + url;
 
-            int code = connection.getResponseCode();
-            if (code != 200) {
-                throw new IOException("Invalid response from server: " + code);
-            }
+            Retrofit retrofit = new retrofit2.Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
 
-            if (headers != null) {
-                for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    connection.addRequestProperty(entry.getKey(), entry.getValue());
-                }
-            }
-            if (params != null) {
-                requestMethod = RequestMethod.POST.toString();
-                for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    connection.addRequestProperty(entry.getKey(), entry.getValue());
+            ResponseBody body;
+            if (reqMethod == RequestMethod.POST) {
+                if (params != null) {
+                    body = retrofit.create(Request.class).postParams(reqUrl, headers, params).execute().body();
+                } else {
+                    body = retrofit.create(Request.class).post(reqUrl, headers).execute().body();
                 }
             } else {
-                requestMethod = RequestMethod.GET.toString();
+                if (headers != null) {
+                    body = retrofit.create(Request.class).getHeaders(reqUrl, headers).execute().body();
+                } else {
+                    body = retrofit.create(Request.class).get(reqUrl).execute().body();
+                }
             }
-            connection.setRequestMethod(requestMethod);
-            connection.connect();
-            return new BufferedInputStream(connection.getInputStream());
-        } catch (IOException e) {
+            if (body != null)
+                return new JSONObject(body.string());
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
         }
+        return null;
     }
 
-    public InputStream getResponse(String requestUrl, Map<String, String> headers) {
-        return this.getResponse(requestUrl, headers, null);
+    public JSONObject getResponse(RequestMethod reqMethod, String requestUrl, Map<String, String> headers) {
+        return this.getResponse(reqMethod, requestUrl, headers, null);
     }
 
-    public InputStream getResponse(String requestUrl) {
-        return this.getResponse(requestUrl, null, null);
+    public JSONObject getResponse(RequestMethod reqMethod, String requestUrl) {
+        return this.getResponse(reqMethod, requestUrl, null, null);
+    }
+
+    private interface Request {
+        @GET
+        Call<ResponseBody> getHeaders(
+                @Url String url,
+                @HeaderMap Map<String, String> headers
+        );
+
+        @GET
+        Call<ResponseBody> get(
+                @Url String url
+        );
+
+        @POST
+        Call<ResponseBody> post(
+                @Url String url,
+                @HeaderMap Map<String, String> headers
+        );
+
+        @POST
+        @FormUrlEncoded
+        Call<ResponseBody> postParams(
+                @Url String url,
+                @HeaderMap Map<String, String> headers,
+                @FieldMap Map<String, String> params
+        );
     }
 }
