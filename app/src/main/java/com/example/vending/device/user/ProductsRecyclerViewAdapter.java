@@ -1,10 +1,7 @@
 package com.example.vending.device.user;
 
-import androidx.fragment.app.FragmentManager;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,46 +9,37 @@ import android.widget.TextView;
 
 import com.example.vending.R;
 import com.example.vending.backend.ItemData;
-import com.example.vending.backend.VM;
 
 import java.util.List;
 import java.util.Locale;
 
 public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRecyclerViewAdapter.ViewHolder> {
 
-    private List<ItemData> mValues;
+    private List<ItemData> mProducts;
+    private ProductListener pListener;
 
-    private long mLastClickTime = 0;
-
-    public ProductsRecyclerViewAdapter(List<ItemData> products) {
-        mValues = products;
+    public ProductsRecyclerViewAdapter(List<ItemData> products, ProductListener pListener) {
+        mProducts = products;
+        this.pListener = pListener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_product, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, pListener);
+    }
+
+    public interface ProductListener {
+        void onProductClick(int position);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mName.setText(mValues.get(position).getName());
+        holder.mItem = mProducts.get(position);
+        holder.mName.setText(mProducts.get(position).getName());
         if (holder.mItem.getQuantity() > 0) {
-            holder.mPrice.setText(String.format(Locale.CANADA, "%.2f", (mValues.get(position).getPrice())));
-            holder.mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
-                        return;
-                    }
-                    mLastClickTime = SystemClock.elapsedRealtime();
-                    new VM().setSelectedProduct(holder.mItem);
-                    NavHostFragment.findNavController(FragmentManager.findFragment(view))
-                            .navigate(R.id.action_ProductsFragment_to_CoinsFragment);
-                }
-            });
+            holder.mPrice.setText(String.format(Locale.CANADA, "%.2f", (mProducts.get(position).getPrice())));
         } else {
             holder.mPrice.setText(R.string.product_no_quantity);
         }
@@ -59,30 +47,39 @@ public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRe
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return mProducts.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final View mView;
         public final TextView mName;
         public final TextView mPrice;
         public ItemData mItem;
 
-        public ViewHolder(View view) {
+        ProductListener pListener;
+
+        public ViewHolder(View view, ProductListener pListener) {
             super(view);
             mView = view;
             mName = (TextView) view.findViewById(R.id.product_name_new);
             mPrice = (TextView) view.findViewById(R.id.product_price_new);
+            this.pListener = pListener;
+            mView.setOnClickListener(this);
         }
 
         @Override
         public String toString() {
             return super.toString() + " '" + mPrice.getText() + "'";
         }
+
+        @Override
+        public void onClick(View v) {
+            pListener.onProductClick(getAbsoluteAdapterPosition());
+        }
     }
 
     public void refreshScreen(List<ItemData> items) {
-        this.mValues = items;
+        this.mProducts = items;
         notifyDataSetChanged();
     }
 }

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,16 +17,21 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
+import com.example.vending.backend.ItemData;
 import com.example.vending.backend.VM;
 import com.example.vending.device.NetworkHandler;
 
-public class ProductsFragment extends Fragment {
+import java.util.List;
 
-    RecyclerView productsList;
-    ProductsRecyclerViewAdapter adapter;
+public class ProductsFragment extends Fragment implements ProductsRecyclerViewAdapter.ProductListener {
 
-    VM vm;
-    NetworkHandler network;
+    private RecyclerView productsList;
+    private ProductsRecyclerViewAdapter adapter;
+    private long mLastClickTime = 0;
+
+    private VM vm;
+    private NetworkHandler network;
+    private List<ItemData> products;
 
     boolean doubleBackToExitPressedOnce = false;
 
@@ -38,11 +44,12 @@ public class ProductsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         vm = new VM();
         network = new NetworkHandler(getContext());
+        products = vm.getProducts();
 
         handleBackButton();
 
         productsList = view.findViewById(R.id.products_list);
-        adapter = new ProductsRecyclerViewAdapter(vm.getProducts());
+        adapter = new ProductsRecyclerViewAdapter(products, this);
         productsList.setAdapter(adapter);
 
         if (!vm.canReturnChange()) {
@@ -83,5 +90,18 @@ public class ProductsFragment extends Fragment {
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
+    }
+
+    @Override
+    public void onProductClick(int position) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+        if (products.get(position).getQuantity() > 0) {
+            new VM().setSelectedProduct(products.get(position));
+            NavHostFragment.findNavController(this)
+                    .navigate(R.id.action_ProductsFragment_to_CoinsFragment);
+        }
     }
 }
