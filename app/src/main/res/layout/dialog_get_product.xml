@@ -8,7 +8,7 @@
     android:layout_gravity="center_horizontal"
     android:paddingLeft="20dp"
     android:paddingRight="20dp"
-    android:columnCount="4"
+    android:columnCount="3"
     android:useDefaultMargins="true"
     android:orientation="horizontal"
     >

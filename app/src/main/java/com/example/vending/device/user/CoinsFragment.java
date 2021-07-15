@@ -30,12 +30,9 @@ import java.util.Locale;
 
 public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener {
 
-    private RecyclerView coinsListRecycler;
-    private TextView productName;
     private TextView coinsAmount;
     private TextView productPrice;
     private String insertedAmount;
-    private CoinsAdapter adapter;
 
     private  VM vm;
     private List<ItemData> coinsMachine;
@@ -43,16 +40,12 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
     private String selectedProductPrice;
     private ItemData selectedProduct;
 
-    @Override
-    public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+    private long mLastClickTime = 0;
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_coins, container, false);
     }
-
-    private long mLastClickTime = 0;
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -62,16 +55,16 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         vm = new VM();
         coinsMachine = vm.getCoins();
         coinsCounter = new CoinsCounter();
-        adapter = new CoinsAdapter(coinsMachine, this);
+        CoinsAdapter adapter = new CoinsAdapter(coinsMachine, this);
 
         selectedProduct = vm.getSelectedProduct();
-        productName = view.findViewById(R.id.product_name);
+        TextView productName = view.findViewById(R.id.product_name);
         coinsAmount = view.findViewById(R.id.coins_inserted_amount);
         productName.setText(selectedProduct.getName());
         insertedAmount = getString(R.string.zero_amount);
         coinsAmount.setText(insertedAmount);
         productPrice = view.findViewById(R.id.product_price);
-        coinsListRecycler = view.findViewById(R.id.coins_list_recycler);
+        RecyclerView coinsListRecycler = view.findViewById(R.id.coins_list_recycler);
         selectedProductPrice = String.format(Locale.CANADA, "%.2f", selectedProduct.getPrice());
         productPrice.setText(selectedProductPrice);
         coinsListRecycler.setAdapter(adapter);
@@ -123,23 +116,14 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
                 .show();
     }
 
-    private TextView createReturnCoinView(ItemData coinItem, int quantity) {
-        TextView coinView = new TextView(getContext());
-        coinView.setBackgroundResource(R.drawable.coin_button_circle_background_small);
-        coinView.setTextColor(getResources().getColor(R.color.white));
+    private View createReturnCoinView(ItemData coinItem, int quantity) {
+        View view = getLayoutInflater().inflate(R.layout.item_coin_small, null);
         String price = String.format(Locale.CANADA, "%.2f", (coinItem.getPrice()));
-        coinView.setText(getString(R.string.alert_text_order_coins_holder, String.valueOf(quantity), price));
-        coinView.setGravity(Gravity.CENTER);
-        coinView.setTextSize(TypedValue.COMPLEX_UNIT_SP,14);
-        return coinView;
-    }
-
-    private void disableButtonsInView(View view) {
-        ViewGroup group = (ViewGroup)view;
-
-        for ( int i = 0 ; i < group.getChildCount() ; i++ ) {
-            group.getChildAt(i).setEnabled(false);
-        }
+        TextView amountView = view.findViewById(R.id.return_coin_amount);
+        TextView nominalView = view.findViewById(R.id.return_coin_nominal);
+        amountView.setText(String.valueOf(quantity));
+        nominalView.setText(price);
+        return view;
     }
 
     @Override
