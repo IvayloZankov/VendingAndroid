@@ -24,7 +24,6 @@ import com.example.vending.backend.VM;
 import com.example.vending.device.NetworkHandler;
 import com.example.vending.server.JsonUtil;
 import com.example.vending.server.RequestMethod;
-import com.example.vending.server.RequestUrl;
 import com.example.vending.server.ServerRequest;
 
 import org.json.JSONArray;
@@ -32,6 +31,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MaintenanceFragment extends Fragment implements OptionsRecyclerViewAdapter.OptionListener {
 
@@ -76,27 +77,32 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
 
     @Override
     public void onOptionClicked(int position) {
-        if (mOptions.get(position) == MaintenanceOption.RESET_PRODUCTS) {
-            if (network.isNetworkAvailable()) {
-                resetProducts();
-            } else {
-                network.showNoInternetDialog(getContext());
+        if (network.isNetworkAvailable()) {
+            if (mOptions.get(position) == MaintenanceOption.RESET_PRODUCTS) {
+                serverRequest(getString(R.string.request_products));
+            } else if (mOptions.get(position) == MaintenanceOption.RESET_COINS) {
+                serverRequest(getString(R.string.request_coins));
             }
-        } else if (mOptions.get(position) == MaintenanceOption.RESET_COINS) {
-            resetCoins();
+        } else {
+            network.showNoInternetDialog(getContext());
         }
     }
 
-    private void resetProducts() {
+    private void serverRequest(String request) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setTitle(R.string.alert_maintenance_reset_products);
+        if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+            alertDialogBuilder.setTitle(R.string.alert_maintenance_reset_products);
+        } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+            alertDialogBuilder.setTitle(R.string.alert_maintenance_reset_coins);
+        }
         alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
         alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Handler handler = new Handler(Looper.getMainLooper()) {
-                    @Override public void handleMessage(Message msg) {
+                    @Override
+                    public void handleMessage(Message msg) {
                         Bundle bundle = msg.getData();
-                        String jsonString = bundle.getString("products");
+                        String jsonString = bundle.getString(getString(R.string.request_items));
 
                         JSONObject json = null;
                         try {
@@ -104,43 +110,40 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        vm.initProductsStorage();
-                        JSONArray jsonArray = JsonUtil.convertToArray(json, "data");
+                        JSONArray jsonArray = JsonUtil.convertToArray(json, getString(R.string.request_data));
                         if (jsonArray != null) {
-                            vm.loadProductsToStorage(jsonArray);
-                            Toast.makeText(getContext(), "Products reset", Toast.LENGTH_SHORT).show();
+                            if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+                                vm.loadProductsToStorage(jsonArray);
+                                Toast.makeText(getContext(), "Products reset", Toast.LENGTH_SHORT).show();
+                            } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+                                vm.loadCoinsToStorage(jsonArray);
+                                Toast.makeText(getContext(), "Coins reset", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 };
 
                 Runnable runnable = new Runnable() {
                     public void run() {
-                        JSONObject json = new ServerRequest().getResponse(RequestMethod.GET, RequestUrl.GET_PRODUCTS.toString());
-                        String jsonString = json.toString();
-                        Message msg = handler.obtainMessage();
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("products", jsonString);
-                        msg.setData(bundle);
-                        handler.sendMessage(msg);
+                        JSONObject json = null;
+                        if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+                            json = new ServerRequest().getResponse(RequestMethod.GET, request);
+                        } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+                            json = new ServerRequest().getResponse(RequestMethod.GET, request);
+                        }
+                        if (json != null) {
+                            String jsonString = json.toString();
+                            Message msg = handler.obtainMessage();
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(getString(R.string.request_items), jsonString);
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+                        }
                     }
                 };
-                Thread myThread = new Thread(runnable);
-                myThread.start();
-            }
-        });
-        alertDialogBuilder.setNegativeButton(R.string.alert_quit_maintenance_cancel, null);
-        alertDialogBuilder.setCancelable(false).show();
-
-    }
-
-    private void resetCoins() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setTitle(R.string.alert_maintenance_reset_coins);
-        alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
-        alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                vm.loadCoinsToStorage();
-                Toast.makeText(getContext(), "Coins reset", Toast.LENGTH_SHORT).show();
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.submit(runnable);
+                executor.shutdown();
             }
         });
         alertDialogBuilder.setNegativeButton(R.string.alert_quit_maintenance_cancel, null);

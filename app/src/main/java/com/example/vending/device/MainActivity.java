@@ -50,8 +50,10 @@ public class MainActivity extends AppCompatActivity {
         vm = new VM();
         network = new NetworkHandler(getApplicationContext());
         if (network.isNetworkAvailable()) {
+            executor = Executors.newSingleThreadExecutor();
 //            initLoadingDialog();
-            initProducts();
+            serverRequest(getString(R.string.request_products));
+            serverRequest(getString(R.string.request_coins));
         } else {
             vm.initProductsStorage();
             setContentView(R.layout.activity_main);
@@ -59,8 +61,6 @@ public class MainActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
             network.showNoInternetDialog(this);
         }
-
-        vm.loadCoinsToStorage();
         vm.initUserCoinsStorage();
     }
 
@@ -83,12 +83,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void initProducts() {
-        executor = Executors.newSingleThreadExecutor();
+    private void serverRequest(String request) {
         Handler handler = new Handler(Looper.getMainLooper()) {
-            @Override public void handleMessage(Message msg) {
+            @Override
+            public void handleMessage(Message msg) {
                 Bundle bundle = msg.getData();
-                String jsonString = bundle.getString("products");
+                String jsonString = bundle.getString(getString(R.string.request_items));
 
                 JSONObject json = null;
                 try {
@@ -96,55 +96,40 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                vm.initProductsStorage();
-                JSONArray jsonArray = JsonUtil.convertToArray(json, "data");
+                JSONArray jsonArray = JsonUtil.convertToArray(json, getString(R.string.request_data));
                 if (jsonArray != null) {
-                    vm.loadProductsToStorage(jsonArray);
+                    if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+                        vm.loadProductsToStorage(jsonArray);
+                    } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+                        vm.loadCoinsToStorage(jsonArray);
+                        setContentView(R.layout.activity_main);
+                        Toolbar toolbar = findViewById(R.id.toolbar);
+                        setSupportActionBar(toolbar);
+                        executor.shutdown();
+                    }
                 }
-                setContentView(R.layout.activity_main);
-                Toolbar toolbar = findViewById(R.id.toolbar);
-                setSupportActionBar(toolbar);
-//                loadingDialog.dismiss();
             }
         };
 
         Runnable runnable = new Runnable() {
             public void run() {
-                JSONObject json = new ServerRequest().getResponse(RequestMethod.GET, RequestUrl.GET_PRODUCTS.toString());
-                String jsonString = json.toString();
-                Message msg = handler.obtainMessage();
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("products", jsonString);
-                msg.setData(bundle);
-                handler.sendMessage(msg);
+                JSONObject json = null;
+                if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+                    json = new ServerRequest().getResponse(RequestMethod.GET, request);
+                } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+                    json = new ServerRequest().getResponse(RequestMethod.GET, request);
+                }
+                if (json != null) {
+                    String jsonString = json.toString();
+                    Message msg = handler.obtainMessage();
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(getString(R.string.request_items), jsonString);
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
+                }
             }
         };
-
-        Runnable runnable2 = new Runnable() {
-            @Override
-            public void run() {
-                new CountDownTimer(5000, 1000){
-                    @Override
-                    public void onTick(long millisUntilFinished) {
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        Log.e("TASK FINISHED:", String.valueOf(counts));
-                        if (counts == 4) {
-                            executor.shutdown();
-                        }
-                        counts++;
-                    }
-                }.start();
-            }
-        };
-        counts = 1;
         executor.submit(runnable);
-        executor.submit(runnable2);
-        executor.submit(runnable2);
-        executor.submit(runnable2);
-        executor.submit(runnable2);
     }
 
     private void initLoadingDialog() {

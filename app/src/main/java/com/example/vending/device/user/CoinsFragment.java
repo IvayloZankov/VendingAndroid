@@ -24,6 +24,7 @@ import com.example.vending.backend.Storage;
 import com.example.vending.backend.VM;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
 
 public class CoinsFragment extends Fragment {
@@ -54,7 +55,7 @@ public class CoinsFragment extends Fragment {
         handleBackButton();
 
         vm = new VM();
-        Storage<ItemData> coinsMachine = vm.getMachineCoins();
+        List<ItemData> coinsMachine = vm.getCoins();
         coinsCounter = new CoinsCounter();
 
         final ItemData selectedProduct = vm.getSelectedProduct();
@@ -68,11 +69,11 @@ public class CoinsFragment extends Fragment {
         String selectedProductPrice = String.format(Locale.CANADA, "%.2f", selectedProduct.getPrice());
         productPrice.setText(selectedProductPrice);
 
-        for (int i = 0; i < coinsMachine.getSize(); i++) {
+        for (int i = 0; i < coinsMachine.size(); i++) {
             Button button = new Button(view.getContext());
             button.setBackgroundResource(R.drawable.coin_button_circle_background);
             button.setTextColor(getResources().getColor(R.color.white));
-            String nominal = String.format(Locale.CANADA, "%.2f", coinsMachine.getItem(i).getPrice());
+            String nominal = String.format(Locale.CANADA, "%.2f", coinsMachine.get(i).getPrice());
             button.setText(nominal);
             button.setTextSize(TypedValue.COMPLEX_UNIT_SP,24);
             coinsList.addView(button);
@@ -85,18 +86,17 @@ public class CoinsFragment extends Fragment {
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
 
-                    updateInsertedAmount(coinsMachine.getItem(finalI));
-                    coinsCounter.insertCoin(coinsMachine.getItem(finalI), vm.getUserCoins());
+                    updateInsertedAmount(coinsMachine.get(finalI));
+                    coinsCounter.insertCoin(coinsMachine.get(finalI), vm.getCoinsUser());
                     coinsAmount.setText(insertedAmount);
                     if (Double.parseDouble(insertedAmount) >= Double.parseDouble(productPrice.getText().toString())) {
                         disableButtonsInView(coinsList);
                         button.setEnabled(false);
-                        coinsCounter.addCoinsToStorage(vm.getUserCoins(), vm.getMachineCoins());
-                        Storage<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, vm.getMachineCoins());
+                        coinsCounter.addCoinsToStorage(vm.getCoinsUser(), vm.getCoins());
+                        Storage<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, vm.getCoins());
                         vm.decreaseProductQuantity(selectedProduct);
                         showGetCoinsAlert(coinsForReturn, false);
                         vm.initUserCoinsStorage();
-
                     }
                 }
             });
@@ -105,7 +105,7 @@ public class CoinsFragment extends Fragment {
         view.findViewById(R.id.button_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showGetCoinsAlert(vm.getUserCoins(), true);
+                showGetCoinsAlert(vm.getCoinsUser(), true);
                 vm.initUserCoinsStorage();
             }
         });
@@ -173,7 +173,7 @@ public class CoinsFragment extends Fragment {
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                showGetCoinsAlert(vm.getUserCoins(), true);
+                showGetCoinsAlert(vm.getCoinsUser(), true);
                 vm.initUserCoinsStorage();
             }
         };

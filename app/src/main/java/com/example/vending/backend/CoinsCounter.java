@@ -1,6 +1,7 @@
 package com.example.vending.backend;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Class that handles the insert and returning coins with successful or cancel order
@@ -59,28 +60,28 @@ public class CoinsCounter {
      * Method to calculate the coins needed for change in descending order
      * @return - returned coins as String
      */
-    public Storage<ItemData> calculateReturningCoins(String sumInserted, String productPrice, Storage<ItemData> storage) {
+    public Storage<ItemData> calculateReturningCoins(String sumInserted, String productPrice, List<ItemData> storage) {
         String change = calculateChange(sumInserted, productPrice);
         Storage<ItemData> coinsAsChange = new Storage<>();
         BigDecimal calculatedChangeDecimal = new BigDecimal(change);
 
         while (Double.parseDouble(calculatedChangeDecimal.toString()) > 0.00) {
             int coinIndex = 0;
-            for (int i = 0; i < storage.getSize(); i++) {
-                int quantity = storage.getItem(i).getQuantity();
-                double price = storage.getItem(i).getPrice();
+            for (int i = 0; i < storage.size(); i++) {
+                int quantity = storage.get(i).getQuantity();
+                double price = storage.get(i).getPrice();
                 double changeDouble = Double.parseDouble(calculatedChangeDecimal.toString());
                 if (quantity > 0 &&
                         price <= changeDouble &&
-                        price > storage.getItem(coinIndex).getPrice()){
+                        price > storage.get(coinIndex).getPrice()){
                     coinIndex = i;
                 }
             }
-            while (storage.getItem(coinIndex).getPrice() <= Double.parseDouble(calculatedChangeDecimal.toString()) &&
-                    storage.getItem(coinIndex).getQuantity() > 0) {
-                storage.getItem(coinIndex).decreaseQuantity();
-                insertCoin(storage.getItem(coinIndex), coinsAsChange);
-                BigDecimal coinValueDecimal = BigDecimal.valueOf(storage.getItem(coinIndex).getPrice());
+            while (storage.get(coinIndex).getPrice() <= Double.parseDouble(calculatedChangeDecimal.toString()) &&
+                    storage.get(coinIndex).getQuantity() > 0) {
+                storage.get(coinIndex).decreaseQuantity();
+                insertCoin(storage.get(coinIndex), coinsAsChange);
+                BigDecimal coinValueDecimal = BigDecimal.valueOf(storage.get(coinIndex).getPrice());
                 calculatedChangeDecimal = calculatedChangeDecimal.subtract(coinValueDecimal);
             }
         }
@@ -91,12 +92,12 @@ public class CoinsCounter {
     /**
      * Adds inserted coins to the coins in the machine
      */
-    public void addCoinsToStorage(Storage<ItemData> storageUser, Storage<ItemData> storageMachine) {
+    public void addCoinsToStorage(Storage<ItemData> storageUser, List<ItemData> storageMachine) {
         for (int i = 0; i < storageUser.getSize(); i++) {
             ItemData userCoin = storageUser.getItem(i);
             String tempCoinName = userCoin.getName();
-            for (int j = 0; j < storageMachine.getSize(); j++) {
-                ItemData coinMachine = storageMachine.getItem(j);
+            for (int j = 0; j < storageMachine.size(); j++) {
+                ItemData coinMachine = storageMachine.get(j);
                 String storageCoinName = coinMachine.getName();
                 if (tempCoinName.equalsIgnoreCase(storageCoinName)) {
                     coinMachine.increaseQuantity(userCoin.getQuantity());

@@ -14,8 +14,12 @@ public class VM {
     private static ItemData selectedProduct;
 
     private static List<ItemData> productsStorage;
-    private static Storage<ItemData> coinsStorageMachine;
+    private static List<ItemData> coinsStorage;
     private static Storage<ItemData> coinsStorageUser;
+
+    private static final String NAME = "name";
+    private static final String PRICE = "price";
+    private static final String QUANTITY = "quantity";
 
     public VM() {
     }
@@ -34,7 +38,7 @@ public class VM {
     }
 
     public void loadCoin(String name, double price, int quantity) {
-        coinsStorageMachine.loadItem(coinsStorageMachine.getSize() + 1, new ItemData(name, price, quantity));
+        coinsStorage.add(coinsStorage.size(), new ItemData(name, price, quantity));
 //        new StateSaver().updateCoins(this.coins);
     }
 
@@ -44,7 +48,7 @@ public class VM {
     }
 
     public void removeCoin(int position) {
-        coinsStorageMachine.removeItem(position);
+        coinsStorage.remove(position);
 //        new StateSaver().updateCoins(this.coins);
     }
 
@@ -54,7 +58,7 @@ public class VM {
     }
 
     public void increaseCoinQuantity(int coinIndex, int quantity) {
-        coinsStorageMachine.getItem(coinIndex).increaseQuantity(quantity);
+        coinsStorage.get(coinIndex).increaseQuantity(quantity);
 //        new StateSaver().updateCoins(this.coins);
     }
 
@@ -80,31 +84,35 @@ public class VM {
         return productsStorage.size();
     }
 
-    public Storage<ItemData> getMachineCoins() {
-        return coinsStorageMachine;
+    public List<ItemData> getCoins() {
+        return coinsStorage;
     }
 
-    public Storage<ItemData> getUserCoins() {
+    public Storage<ItemData> getCoinsUser() {
         return coinsStorageUser;
     }
 
-    public Map<Integer, ItemData> getCoinsStorage() {
-        return coinsStorageMachine.getStorage();
+    public List<ItemData> getCoinsStorage() {
+        return coinsStorage;
     }
 
     public int getCoinsSize() {
-        return coinsStorageMachine.getSize();
+        return coinsStorage.size();
     }
 
     /**
      * @return - ten cents coins quantity
      */
     public boolean canReturnChange() {
-        return coinsStorageMachine.getStorage().get(0).getQuantity() > 40;
+        return coinsStorage.get(0).getQuantity() > 40;
     }
 
     public void initProductsStorage() {
         productsStorage = new ArrayList<>();
+    }
+
+    public void initCoinsStorage() {
+        coinsStorage = new ArrayList<>();
     }
 
     public void initUserCoinsStorage() {
@@ -119,9 +127,9 @@ public class VM {
                 item = jsonArray.getJSONObject(i);
 //                Log.e("JSON", item.toString());
                 loadProduct(
-                        item.getString("name"),
-                        Double.parseDouble(item.getString("price")),
-                        Integer.parseInt(item.getString("quantity"))
+                        item.getString(NAME),
+                        Double.parseDouble(item.getString(PRICE)),
+                        Integer.parseInt(item.getString(QUANTITY))
                 );
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -129,14 +137,22 @@ public class VM {
         }
     }
 
-    public void loadCoinsToStorage() {
-        coinsStorageMachine = new Storage<>();
-        coinsStorageMachine.loadItem(0, new ItemData("five_cents", 0.05, 60));
-        coinsStorageMachine.loadItem(1, new ItemData("ten_cents", 0.10, 40));
-        coinsStorageMachine.loadItem(2, new ItemData("twenty_cents", 0.20, 20));
-        coinsStorageMachine.loadItem(3, new ItemData("fifty_cents", 0.50, 10));
-        coinsStorageMachine.loadItem(4, new ItemData("one_eur", 1.00, 5));
-        coinsStorageMachine.loadItem(5, new ItemData("two_eur", 2.00, 0));
+    public void loadCoinsToStorage(JSONArray jsonArray) {
+        initCoinsStorage();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject item;
+            try {
+                item = jsonArray.getJSONObject(i);
+//                Log.e("JSON", item.toString());
+                loadCoin(
+                        item.getString(NAME),
+                        Double.parseDouble(item.getString(PRICE)),
+                        Integer.parseInt(item.getString(QUANTITY))
+                );
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public List<MaintenanceOption> getMaintenanceOptions() {
