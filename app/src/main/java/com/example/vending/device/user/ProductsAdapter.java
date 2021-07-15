@@ -13,29 +13,25 @@ import com.example.vending.backend.ItemData;
 import java.util.List;
 import java.util.Locale;
 
-public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRecyclerViewAdapter.ViewHolder> {
+public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductHolder> {
 
     private List<ItemData> mProducts;
     private ProductListener pListener;
 
-    public ProductsRecyclerViewAdapter(List<ItemData> products, ProductListener pListener) {
-        mProducts = products;
+    public ProductsAdapter(List<ItemData> products, ProductListener pListener) {
+        this.mProducts = products;
         this.pListener = pListener;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ProductHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_product, parent, false);
-        return new ViewHolder(view, pListener);
-    }
-
-    public interface ProductListener {
-        void onProductClick(int position);
+        return new ProductHolder(view, pListener);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ProductHolder holder, int position) {
         holder.mItem = mProducts.get(position);
         holder.mName.setText(mProducts.get(position).getName());
         if (holder.mItem.getQuantity() > 0) {
@@ -50,7 +46,11 @@ public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRe
         return mProducts.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public interface ProductListener {
+        void onProductClick(int position);
+    }
+
+    public class ProductHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final View mView;
         public final TextView mName;
         public final TextView mPrice;
@@ -58,7 +58,7 @@ public class ProductsRecyclerViewAdapter extends RecyclerView.Adapter<ProductsRe
 
         ProductListener pListener;
 
-        public ViewHolder(View view, ProductListener pListener) {
+        public ProductHolder(View view, ProductListener pListener) {
             super(view);
             mView = view;
             mName = (TextView) view.findViewById(R.id.product_name_new);

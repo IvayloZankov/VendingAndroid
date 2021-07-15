@@ -23,10 +23,10 @@ import com.example.vending.device.NetworkHandler;
 
 import java.util.List;
 
-public class ProductsFragment extends Fragment implements ProductsRecyclerViewAdapter.ProductListener {
+public class ProductsFragment extends Fragment implements ProductsAdapter.ProductListener {
 
     private RecyclerView productsList;
-    private ProductsRecyclerViewAdapter adapter;
+    private ProductsAdapter adapter;
     private long mLastClickTime = 0;
 
     private VM vm;
@@ -49,7 +49,7 @@ public class ProductsFragment extends Fragment implements ProductsRecyclerViewAd
         handleBackButton();
 
         productsList = view.findViewById(R.id.products_list);
-        adapter = new ProductsRecyclerViewAdapter(products, this);
+        adapter = new ProductsAdapter(products, this);
         productsList.setAdapter(adapter);
 
         if (!vm.canReturnChange()) {

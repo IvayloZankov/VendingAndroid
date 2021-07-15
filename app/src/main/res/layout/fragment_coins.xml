@@ -15,13 +15,12 @@
         android:fontFamily="sans-serif"
         android:gravity="center_horizontal"
         android:layout_margin="16dp"
-        android:textSize="24dp"
+        android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:tooltipText="ProductName"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/coins_inserted_text"
@@ -31,7 +30,7 @@
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="@string/coins_inserted"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/product_price_text"
@@ -44,15 +43,15 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="center"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:textColor="?attr/colorPrimary"
         android:background="@drawable/coin_amounts_button_round_background"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/product_price"
         app:layout_constraintTop_toBottomOf="@id/coins_inserted_text"
-        tools:layout_editor_absoluteX="91dp"
-        tools:layout_editor_absoluteY="140dp" />
+        tools:text="0.50"
+        />
 
     <TextView
         android:id="@+id/product_price_text"
@@ -62,12 +61,13 @@
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="@string/product_price"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/coins_inserted_text"
-        app:layout_constraintTop_toBottomOf="@id/product_name" />
+        app:layout_constraintTop_toBottomOf="@id/product_name"
+        />
 
     <TextView
         android:id="@+id/product_price"
@@ -75,39 +75,35 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="center"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:textStyle="bold"
-        android:text="0.80"
         android:textColor="?attr/colorPrimary"
         android:background="@drawable/coin_amounts_button_round_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/coins_inserted_amount"
         app:layout_constraintTop_toBottomOf="@id/product_price_text"
         tools:layout_editor_absoluteX="263dp"
-        tools:layout_editor_absoluteY="142dp" />
+        tools:layout_editor_absoluteY="142dp"
+        tools:text="0.80"
+        />
 
-    <ScrollView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/coins_list_recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingTop="32dp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:layout_marginHorizontal="32dp"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/coins_inserted_amount">
-
-        <GridLayout
-            android:id="@+id/coins_list"
-            android:columnCount="2"
-            android:useDefaultMargins="true"
-            android:paddingBottom="300dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:orientation="horizontal"
-            />
-    </ScrollView>
+        app:layout_constraintTop_toBottomOf="@id/coins_inserted_amount"
+        app:spanCount="2"
+        tools:listitem="@layout/item_coin"
+        />
 
     <Button
         android:id="@+id/button_cancel"

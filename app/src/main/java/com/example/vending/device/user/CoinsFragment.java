@@ -16,6 +16,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
 import com.example.vending.backend.CoinsCounter;
@@ -27,16 +28,20 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 
-public class CoinsFragment extends Fragment {
+public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener {
 
-    ViewGroup coinsList;
-    TextView productName;
-    TextView coinsAmount;
-    TextView productPrice;
-    String insertedAmount;
+    private RecyclerView coinsListRecycler;
+    private TextView productName;
+    private TextView coinsAmount;
+    private TextView productPrice;
+    private String insertedAmount;
+    private CoinsAdapter adapter;
 
-    VM vm;
-    CoinsCounter coinsCounter;
+    private  VM vm;
+    private List<ItemData> coinsMachine;
+    private CoinsCounter coinsCounter;
+    private String selectedProductPrice;
+    private ItemData selectedProduct;
 
     @Override
     public View onCreateView(
@@ -55,52 +60,21 @@ public class CoinsFragment extends Fragment {
         handleBackButton();
 
         vm = new VM();
-        List<ItemData> coinsMachine = vm.getCoins();
+        coinsMachine = vm.getCoins();
         coinsCounter = new CoinsCounter();
+        adapter = new CoinsAdapter(coinsMachine, this);
 
-        final ItemData selectedProduct = vm.getSelectedProduct();
+        selectedProduct = vm.getSelectedProduct();
         productName = view.findViewById(R.id.product_name);
-        coinsList = view.findViewById(R.id.coins_list);
         coinsAmount = view.findViewById(R.id.coins_inserted_amount);
         productName.setText(selectedProduct.getName());
-        insertedAmount = "0.00";
+        insertedAmount = getString(R.string.zero_amount);
         coinsAmount.setText(insertedAmount);
         productPrice = view.findViewById(R.id.product_price);
-        String selectedProductPrice = String.format(Locale.CANADA, "%.2f", selectedProduct.getPrice());
+        coinsListRecycler = view.findViewById(R.id.coins_list_recycler);
+        selectedProductPrice = String.format(Locale.CANADA, "%.2f", selectedProduct.getPrice());
         productPrice.setText(selectedProductPrice);
-
-        for (int i = 0; i < coinsMachine.size(); i++) {
-            Button button = new Button(view.getContext());
-            button.setBackgroundResource(R.drawable.coin_button_circle_background);
-            button.setTextColor(getResources().getColor(R.color.white));
-            String nominal = String.format(Locale.CANADA, "%.2f", coinsMachine.get(i).getPrice());
-            button.setText(nominal);
-            button.setTextSize(TypedValue.COMPLEX_UNIT_SP,24);
-            coinsList.addView(button);
-            int finalI = i;
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
-                        return;
-                    }
-                    mLastClickTime = SystemClock.elapsedRealtime();
-
-                    updateInsertedAmount(coinsMachine.get(finalI));
-                    coinsCounter.insertCoin(coinsMachine.get(finalI), vm.getCoinsUser());
-                    coinsAmount.setText(insertedAmount);
-                    if (Double.parseDouble(insertedAmount) >= Double.parseDouble(productPrice.getText().toString())) {
-                        disableButtonsInView(coinsList);
-                        button.setEnabled(false);
-                        coinsCounter.addCoinsToStorage(vm.getCoinsUser(), vm.getCoins());
-                        Storage<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, vm.getCoins());
-                        vm.decreaseProductQuantity(selectedProduct);
-                        showGetCoinsAlert(coinsForReturn, false);
-                        vm.initUserCoinsStorage();
-                    }
-                }
-            });
-        }
+        coinsListRecycler.setAdapter(adapter);
 
         view.findViewById(R.id.button_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,7 +140,25 @@ public class CoinsFragment extends Fragment {
         for ( int i = 0 ; i < group.getChildCount() ; i++ ) {
             group.getChildAt(i).setEnabled(false);
         }
+    }
 
+    @Override
+    public void onCoinClick(int position) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
+        updateInsertedAmount(coinsMachine.get(position));
+        coinsCounter.insertCoin(coinsMachine.get(position), vm.getCoinsUser());
+        coinsAmount.setText(insertedAmount);
+        if (Double.parseDouble(insertedAmount) >= Double.parseDouble(productPrice.getText().toString())) {
+            coinsCounter.addCoinsToStorage(vm.getCoinsUser(), vm.getCoins());
+            Storage<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, vm.getCoins());
+            vm.decreaseProductQuantity(selectedProduct);
+            showGetCoinsAlert(coinsForReturn, false);
+            vm.initUserCoinsStorage();
+        }
     }
 
     private void handleBackButton() {
@@ -179,4 +171,5 @@ public class CoinsFragment extends Fragment {
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
     }
+
 }

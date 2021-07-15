@@ -28,17 +28,4 @@
         tools:context=".device.ItemFragment"
         tools:listitem="@layout/item_product" />
 
-    <Button
-        android:visibility="gone"
-        android:id="@+id/button_reset_products"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="32dp"
-        android:text="@string/reset_products"
-        android:textColor="@color/white"
-        android:background="@drawable/coin_amounts_button_round_background"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
