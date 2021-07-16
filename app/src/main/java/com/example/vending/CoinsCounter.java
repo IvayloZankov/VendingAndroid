@@ -1,6 +1,7 @@
-package com.example.vending.backend;
+package com.example.vending;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,23 +12,23 @@ public class CoinsCounter {
     /**
      * Insert coins method
      */
-    public void insertCoin(ItemData coin, Storage<ItemData> storage) {
+    public void insertCoin(ItemData coin, List<ItemData> storage) {
         String selectedCoinName = coin.getName();
         double selectedCoinValue = coin.getPrice();
         boolean isPresent = false;
 
-        int size = storage.getSize();
+        int size = storage.size();
 
         for (int i = 0; i < size; i++) {
-            String name = storage.getItem(i).getName();
+            String name = storage.get(i).getName();
             if (coin.getName().equals(name)) {
-                storage.getItem(i).increaseQuantity(1);
+                storage.get(i).increaseQuantity(1);
                 isPresent = true;
                 break;
             }
         }
         if (!isPresent) {
-            storage.loadItem(storage.getSize(), new ItemData(selectedCoinName, selectedCoinValue, 1));
+            storage.add(storage.size(), new ItemData(selectedCoinName, selectedCoinValue, 1));
         }
     }
 
@@ -60,9 +61,9 @@ public class CoinsCounter {
      * Method to calculate the coins needed for change in descending order
      * @return - returned coins as String
      */
-    public Storage<ItemData> calculateReturningCoins(String sumInserted, String productPrice, List<ItemData> storage) {
+    public List<ItemData> calculateReturningCoins(String sumInserted, String productPrice, List<ItemData> storage) {
         String change = calculateChange(sumInserted, productPrice);
-        Storage<ItemData> coinsAsChange = new Storage<>();
+        List<ItemData> coinsAsChange = new ArrayList<>();
         BigDecimal calculatedChangeDecimal = new BigDecimal(change);
 
         while (Double.parseDouble(calculatedChangeDecimal.toString()) > 0.00) {
@@ -92,9 +93,9 @@ public class CoinsCounter {
     /**
      * Adds inserted coins to the coins in the machine
      */
-    public void addCoinsToStorage(Storage<ItemData> storageUser, List<ItemData> storageMachine) {
-        for (int i = 0; i < storageUser.getSize(); i++) {
-            ItemData userCoin = storageUser.getItem(i);
+    public void addCoinsToStorage(List<ItemData> storageUser, List<ItemData> storageMachine) {
+        for (int i = 0; i < storageUser.size(); i++) {
+            ItemData userCoin = storageUser.get(i);
             String tempCoinName = userCoin.getName();
             for (int j = 0; j < storageMachine.size(); j++) {
                 ItemData coinMachine = storageMachine.get(j);

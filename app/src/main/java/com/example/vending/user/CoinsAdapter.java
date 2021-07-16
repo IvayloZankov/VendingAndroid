@@ -1,4 +1,4 @@
-package com.example.vending.device.user;
+package com.example.vending.user;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.backend.ItemData;
+import com.example.vending.ItemData;
 
 import java.util.List;
 import java.util.Locale;

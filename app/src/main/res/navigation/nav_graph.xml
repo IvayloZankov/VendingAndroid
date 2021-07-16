@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/ProductsFragment"
-        android:name="com.example.vending.device.user.ProductsFragment"
+        android:name="com.example.vending.user.ProductsFragment"
         android:label="@string/products_fragment_label"
         tools:layout="@layout/fragment_products">
 
@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/CoinsFragment"
-        android:name="com.example.vending.device.user.CoinsFragment"
+        android:name="com.example.vending.user.CoinsFragment"
         android:label="@string/coins_fragment_label"
         tools:layout="@layout/fragment_coins">
 
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/MaintenanceFragment"
-        android:name="com.example.vending.device.maintenance.MaintenanceFragment"
+        android:name="com.example.vending.maintenance.MaintenanceFragment"
         android:label="@string/coins_fragment_label"
         tools:layout="@layout/fragment_maintenance">
 

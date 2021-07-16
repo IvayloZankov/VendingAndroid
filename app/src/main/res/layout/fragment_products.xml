@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorOnPrimary"
-    tools:context=".device.user.ProductsFragment"
+    tools:context=".user.ProductsFragment"
     >
 
     <androidx.recyclerview.widget.RecyclerView

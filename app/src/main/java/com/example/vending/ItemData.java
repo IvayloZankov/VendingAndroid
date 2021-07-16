@@ -1,4 +1,4 @@
-package com.example.vending.backend;
+package com.example.vending;
 
 public class ItemData {
     private String name;

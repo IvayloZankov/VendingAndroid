@@ -1,15 +1,12 @@
-package com.example.vending.device.user;
+package com.example.vending.user;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -19,12 +16,12 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.backend.CoinsCounter;
-import com.example.vending.backend.ItemData;
-import com.example.vending.backend.Storage;
-import com.example.vending.backend.VM;
+import com.example.vending.CoinsCounter;
+import com.example.vending.ItemData;
+import com.example.vending.MainActivity;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,16 +31,25 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
     private TextView productPrice;
     private String insertedAmount;
 
-    private  VM vm;
     private List<ItemData> coinsMachine;
     private CoinsCounter coinsCounter;
     private String selectedProductPrice;
-    private ItemData selectedProduct;
+
+    MainActivity activity;
+    private List<ItemData> coinsUser;
+
+    private int pPos;
+    private String pName;
+    private Double pPrice;
 
     private long mLastClickTime = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Bundle arguments = getArguments();
+        pPos = arguments.getInt(getString(R.string.item_position_key));
+        pName = arguments.getString(getString(R.string.item_name_key));
+        pPrice = arguments.getDouble(getString(R.string.item_price_key));
         return inflater.inflate(R.layout.fragment_coins, container, false);
     }
 
@@ -52,28 +58,28 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
 
         handleBackButton();
 
-        vm = new VM();
-        coinsMachine = vm.getCoins();
+        activity = (MainActivity) getActivity();
+
+        coinsUser = new ArrayList<>();
+        coinsMachine = activity.getCoins();
         coinsCounter = new CoinsCounter();
         CoinsAdapter adapter = new CoinsAdapter(coinsMachine, this);
 
-        selectedProduct = vm.getSelectedProduct();
         TextView productName = view.findViewById(R.id.product_name);
         coinsAmount = view.findViewById(R.id.coins_inserted_amount);
-        productName.setText(selectedProduct.getName());
+        productName.setText(pName);
         insertedAmount = getString(R.string.zero_amount);
         coinsAmount.setText(insertedAmount);
         productPrice = view.findViewById(R.id.product_price);
         RecyclerView coinsListRecycler = view.findViewById(R.id.coins_list_recycler);
-        selectedProductPrice = String.format(Locale.CANADA, "%.2f", selectedProduct.getPrice());
+        selectedProductPrice = String.format(Locale.CANADA, "%.2f", pPrice);
         productPrice.setText(selectedProductPrice);
         coinsListRecycler.setAdapter(adapter);
 
         view.findViewById(R.id.button_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showGetCoinsAlert(vm.getCoinsUser(), true);
-                vm.initUserCoinsStorage();
+                showGetCoinsAlert(coinsUser, true);
             }
         });
     }
@@ -82,7 +88,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         insertedAmount = new BigDecimal(insertedAmount).add(BigDecimal.valueOf(item.getPrice())).toString();
     }
 
-    private void showGetCoinsAlert(Storage<ItemData> coinsForReturn, boolean isCancel) {
+    private void showGetCoinsAlert(List<ItemData> coinsForReturn, boolean isCancel) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         View alertLayout = getLayoutInflater().inflate(R.layout.dialog_get_product, null);
         if (!isCancel) {
@@ -91,7 +97,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         } else {
             alertDialogBuilder.setTitle(R.string.alert_title_order_canceled);
         }
-        if (coinsForReturn.getSize() > 0) {
+        if (coinsForReturn.size() > 0) {
             if (!isCancel) {
                 String msg = getString(R.string.alert_text_get_product) + "\n"+ getString(R.string.alert_text_get_change);
                 alertDialogBuilder.setMessage(msg);
@@ -99,8 +105,8 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
                 alertDialogBuilder.setMessage(R.string.alert_text_order_canceled);
             }
             ViewGroup layout = alertLayout.findViewById(R.id.coins_change_list);
-            for (int i = 0; i < coinsForReturn.getSize(); i++) {
-                ItemData coinItem = coinsForReturn.getItem(i);
+            for (int i = 0; i < coinsForReturn.size(); i++) {
+                ItemData coinItem = coinsForReturn.get(i);
                 int quantity = coinItem.getQuantity();
                 layout.addView(createReturnCoinView(coinItem, quantity));
             }
@@ -134,14 +140,13 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         mLastClickTime = SystemClock.elapsedRealtime();
 
         updateInsertedAmount(coinsMachine.get(position));
-        coinsCounter.insertCoin(coinsMachine.get(position), vm.getCoinsUser());
+        coinsCounter.insertCoin(coinsMachine.get(position), coinsUser);
         coinsAmount.setText(insertedAmount);
         if (Double.parseDouble(insertedAmount) >= Double.parseDouble(productPrice.getText().toString())) {
-            coinsCounter.addCoinsToStorage(vm.getCoinsUser(), vm.getCoins());
-            Storage<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, vm.getCoins());
-            vm.decreaseProductQuantity(selectedProduct);
+            coinsCounter.addCoinsToStorage(coinsUser, coinsMachine);
+            List<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, coinsMachine);
+            ((MainActivity) getActivity()).decreaseProductQuantity(pPos);
             showGetCoinsAlert(coinsForReturn, false);
-            vm.initUserCoinsStorage();
         }
     }
 
@@ -149,8 +154,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                showGetCoinsAlert(vm.getCoinsUser(), true);
-                vm.initUserCoinsStorage();
+                showGetCoinsAlert(coinsUser, true);
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);

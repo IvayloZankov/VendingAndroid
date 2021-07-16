@@ -1,4 +1,4 @@
-package com.example.vending.device.maintenance;
+package com.example.vending.maintenance;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +8,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.backend.MaintenanceOption;
 
 import java.util.List;
 

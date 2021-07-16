@@ -1,4 +1,4 @@
-package com.example.vending.device;
+package com.example.vending;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -8,38 +8,34 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.vending.R;
-import com.example.vending.backend.VM;
-import com.example.vending.server.JsonUtil;
+import com.example.vending.server.Utils;
 import com.example.vending.server.RequestMethod;
-import com.example.vending.server.RequestUrl;
 import com.example.vending.server.ServerRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    VM vm;
+    public List<ItemData> productsStorage;
+    public List<ItemData> coinsStorage;
     NetworkHandler network;
 
     ProgressDialog loadingDialog;
 
     ExecutorService executor;
-
-    int counts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
 //        ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-        vm = new VM();
         network = new NetworkHandler(getApplicationContext());
         if (network.isNetworkAvailable()) {
             executor = Executors.newSingleThreadExecutor();
@@ -55,13 +50,12 @@ public class MainActivity extends AppCompatActivity {
             serverRequest(getString(R.string.request_products));
             serverRequest(getString(R.string.request_coins));
         } else {
-            vm.initProductsStorage();
+            productsStorage = new ArrayList<>();
             setContentView(R.layout.activity_main);
             Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             network.showNoInternetDialog(this);
         }
-        vm.initUserCoinsStorage();
     }
 
     @Override
@@ -96,12 +90,12 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                JSONArray jsonArray = JsonUtil.convertToArray(json, getString(R.string.request_data));
+                JSONArray jsonArray = Utils.extractJsonArray(json, getString(R.string.request_data));
                 if (jsonArray != null) {
                     if (request.equalsIgnoreCase(getString(R.string.request_products))) {
-                        vm.loadProductsToStorage(jsonArray);
+                        loadProductsToStorage(jsonArray);
                     } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
-                        vm.loadCoinsToStorage(jsonArray);
+                        loadCoinsToStorage(jsonArray);
                         setContentView(R.layout.activity_main);
                         Toolbar toolbar = findViewById(R.id.toolbar);
                         setSupportActionBar(toolbar);
@@ -138,5 +132,59 @@ public class MainActivity extends AppCompatActivity {
         loadingDialog.setIndeterminate(false);
         loadingDialog.setCancelable(false);
         loadingDialog.show();
+    }
+
+    public void loadProductsToStorage(JSONArray jsonArray) {
+        productsStorage = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject item;
+            try {
+                item = jsonArray.getJSONObject(i);
+//                Log.e("JSON", item.toString());
+                productsStorage.add(
+                        productsStorage.size(),
+                        new ItemData(item.getString(getString(R.string.item_name_key)),
+                        Double.parseDouble(item.getString(getString(R.string.item_price_key))),
+                        Integer.parseInt(item.getString(getString(R.string.item_quantity_key))))
+                );
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void loadCoinsToStorage(JSONArray jsonArray) {
+        coinsStorage = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject item;
+            try {
+                item = jsonArray.getJSONObject(i);
+//                Log.e("JSON", item.toString());
+                coinsStorage.add(
+                        coinsStorage.size(),
+                        new ItemData(item.getString(getString(R.string.item_name_key)),
+                        Double.parseDouble(item.getString(getString(R.string.item_price_key))),
+                        Integer.parseInt(item.getString(getString(R.string.item_quantity_key))))
+                );
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void decreaseProductQuantity(int pos) {
+        productsStorage.get(pos).decreaseQuantity();
+    }
+
+    public List<ItemData> getProducts() {
+        return productsStorage;
+    }
+
+    public List<ItemData> getCoins() {
+        return coinsStorage;
+    }
+
+    public boolean canReturnChange() {
+        return coinsStorage.get(0).getQuantity() > 40;
     }
 }

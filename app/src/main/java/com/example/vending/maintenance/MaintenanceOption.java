@@ -1,4 +1,4 @@
-package com.example.vending.backend;
+package com.example.vending.maintenance;
 
 public enum MaintenanceOption {
     RESET_PRODUCTS("reset products"),

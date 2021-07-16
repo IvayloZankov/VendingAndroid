@@ -1,4 +1,4 @@
-package com.example.vending.device;
+package com.example.vending;
 
 import android.app.AlertDialog;
 import android.content.Context;

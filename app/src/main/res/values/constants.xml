@@ -3,5 +3,9 @@
     <string name="request_coins" translatable="false">coins.txt</string>
     <string name="request_items" translatable="false">items</string>
     <string name="request_data" translatable="false">data</string>
-    <string name="zero_amount">0.00</string>
+    <string name="zero_amount" translatable="false">0.00</string>
+    <string name="item_position_key" translatable="false">position</string>
+    <string name="item_name_key" translatable="false">name</string>
+    <string name="item_price_key" translatable="false">price</string>
+    <string name="item_quantity_key" translatable="false">quantity</string>
 </resources>

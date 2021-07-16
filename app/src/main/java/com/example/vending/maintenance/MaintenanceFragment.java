@@ -1,4 +1,4 @@
-package com.example.vending.device.maintenance;
+package com.example.vending.maintenance;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -19,10 +19,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.backend.MaintenanceOption;
-import com.example.vending.backend.VM;
-import com.example.vending.device.NetworkHandler;
-import com.example.vending.server.JsonUtil;
+import com.example.vending.MainActivity;
+import com.example.vending.NetworkHandler;
+import com.example.vending.server.Utils;
 import com.example.vending.server.RequestMethod;
 import com.example.vending.server.ServerRequest;
 
@@ -30,6 +29,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,7 +41,6 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
     OptionsRecyclerViewAdapter mAdapter;
     List<MaintenanceOption> mOptions;
 
-    VM vm;
     NetworkHandler network;
 
     @Override
@@ -53,9 +53,8 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        vm = new VM();
         network = new NetworkHandler(getContext());
-        mOptions = vm.getMaintenanceOptions();
+        mOptions = new ArrayList<>(Arrays.asList(MaintenanceOption.values()));
 
         handleBackButton();
 
@@ -110,13 +109,13 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        JSONArray jsonArray = JsonUtil.convertToArray(json, getString(R.string.request_data));
+                        JSONArray jsonArray = Utils.extractJsonArray(json, getString(R.string.request_data));
                         if (jsonArray != null) {
                             if (request.equalsIgnoreCase(getString(R.string.request_products))) {
-                                vm.loadProductsToStorage(jsonArray);
+                                ((MainActivity) getActivity()).loadProductsToStorage(jsonArray);
                                 Toast.makeText(getContext(), "Products reset", Toast.LENGTH_SHORT).show();
                             } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
-                                vm.loadCoinsToStorage(jsonArray);
+                                ((MainActivity) getActivity()).loadCoinsToStorage(jsonArray);
                                 Toast.makeText(getContext(), "Coins reset", Toast.LENGTH_SHORT).show();
                             }
                         }

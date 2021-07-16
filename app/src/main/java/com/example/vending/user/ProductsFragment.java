@@ -1,4 +1,4 @@
-package com.example.vending.device.user;
+package com.example.vending.user;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,9 +17,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.backend.ItemData;
-import com.example.vending.backend.VM;
-import com.example.vending.device.NetworkHandler;
+import com.example.vending.ItemData;
+import com.example.vending.MainActivity;
+import com.example.vending.NetworkHandler;
 
 import java.util.List;
 
@@ -29,7 +29,6 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
     private ProductsAdapter adapter;
     private long mLastClickTime = 0;
 
-    private VM vm;
     private NetworkHandler network;
     private List<ItemData> products;
 
@@ -42,9 +41,9 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        vm = new VM();
         network = new NetworkHandler(getContext());
-        products = vm.getProducts();
+        MainActivity activity = (MainActivity) getActivity();
+        products = activity.getProducts();
 
         handleBackButton();
 
@@ -52,7 +51,7 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         adapter = new ProductsAdapter(products, this);
         productsList.setAdapter(adapter);
 
-        if (!vm.canReturnChange()) {
+        if (!activity.canReturnChange()) {
             showOutOfOrderAlert();
         }
     }
@@ -99,9 +98,13 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         }
         mLastClickTime = SystemClock.elapsedRealtime();
         if (products.get(position).getQuantity() > 0) {
-            new VM().setSelectedProduct(products.get(position));
+            ItemData itemData = products.get(position);
+            Bundle bundle = new Bundle();
+            bundle.putString(getString(R.string.item_name_key), itemData.getName());
+            bundle.putDouble(getString(R.string.item_price_key), itemData.getPrice());
+            bundle.putInt(getString(R.string.item_position_key), position);
             NavHostFragment.findNavController(this)
-                    .navigate(R.id.action_ProductsFragment_to_CoinsFragment);
+                    .navigate(R.id.action_ProductsFragment_to_CoinsFragment, bundle);
         }
     }
 }
