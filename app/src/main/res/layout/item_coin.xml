@@ -10,7 +10,7 @@
 
         <TextView
             android:id="@+id/coin_nominal_text"
-            android:background="@drawable/coin_button_circle_background"
+            android:background="@drawable/button_circle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

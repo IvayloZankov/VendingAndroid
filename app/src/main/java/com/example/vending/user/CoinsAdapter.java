@@ -44,7 +44,7 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
     }
 
     public interface CoinListener {
-        void onCoinClick(int position);
+        void onCoinClick(int position, View v);
     }
 
     public class CoinsHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -66,7 +66,7 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
 
         @Override
         public void onClick(View v) {
-            cListener.onCoinClick(getAbsoluteAdapterPosition());
+            cListener.onCoinClick(getAbsoluteAdapterPosition(), v);
         }
     }
 }

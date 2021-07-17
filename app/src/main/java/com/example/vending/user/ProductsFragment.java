@@ -8,6 +8,8 @@ import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -51,7 +53,7 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         adapter = new ProductsAdapter(products, this);
         productsList.setAdapter(adapter);
 
-        if (!activity.canReturnChange()) {
+        if (network.isNetworkAvailable() && !activity.canReturnChange()) {
             showOutOfOrderAlert();
         }
     }
@@ -92,19 +94,37 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
     }
 
     @Override
-    public void onProductClick(int position) {
+    public void onProductClick(int position, View v) {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
         if (products.get(position).getQuantity() > 0) {
+            View button = v.findViewById(R.id.product_button);
+            button.setBackgroundResource(R.drawable.button_round_background_pressed);
+//            Animation press = AnimationUtils.loadAnimation(getContext(), R.anim.press);
+            button.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    button.animate().scaleX(1).scaleY(1).setDuration(100);
+                }
+            });
             ItemData itemData = products.get(position);
             Bundle bundle = new Bundle();
             bundle.putString(getString(R.string.item_name_key), itemData.getName());
             bundle.putDouble(getString(R.string.item_price_key), itemData.getPrice());
             bundle.putInt(getString(R.string.item_position_key), position);
-            NavHostFragment.findNavController(this)
-                    .navigate(R.id.action_ProductsFragment_to_CoinsFragment, bundle);
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+                    NavHostFragment.findNavController(getFragment())
+                            .navigate(R.id.action_ProductsFragment_to_CoinsFragment, bundle);
+//                }
+//            }, 200);
         }
+    }
+
+    private Fragment getFragment() {
+        return this;
     }
 }

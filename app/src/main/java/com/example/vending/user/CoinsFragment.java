@@ -133,12 +133,17 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
     }
 
     @Override
-    public void onCoinClick(int position) {
+    public void onCoinClick(int position, View v) {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-
+        v.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                v.animate().scaleX(1).scaleY(1).setDuration(100);
+            }
+        });
         updateInsertedAmount(coinsMachine.get(position));
         coinsCounter.insertCoin(coinsMachine.get(position), coinsUser);
         coinsAmount.setText(insertedAmount);

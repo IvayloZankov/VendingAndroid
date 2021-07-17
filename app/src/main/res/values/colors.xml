@@ -5,8 +5,10 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="green_700">#005C00</color>
     <color name="green_600">#007A00</color>
+    <color name="yellow_200">#FFDC85</color>
     <color name="yellow_500">#FBC02D</color>
     <color name="yellow_700">#E3A200</color>
+    <color name="yellow_900">#B17E00</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_500">#00A595</color>
     <color name="teal_700">#FF018786</color>

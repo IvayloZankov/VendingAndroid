@@ -1,5 +1,6 @@
 package com.example.vending.user;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -17,10 +18,12 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
 
     private List<ItemData> mProducts;
     private ProductListener pListener;
+    private int mCheckedItem;
 
     public ProductsAdapter(List<ItemData> products, ProductListener pListener) {
         this.mProducts = products;
         this.pListener = pListener;
+        this.mCheckedItem = -1;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
     }
 
     public interface ProductListener {
-        void onProductClick(int position);
+        void onProductClick(int position, View v);
     }
 
     public class ProductHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -74,7 +77,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
 
         @Override
         public void onClick(View v) {
-            pListener.onProductClick(getAbsoluteAdapterPosition());
+            pListener.onProductClick(getAbsoluteAdapterPosition(), v);
         }
     }
 

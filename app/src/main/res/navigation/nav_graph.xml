@@ -13,9 +13,13 @@
 
         <action
             android:id="@+id/action_ProductsFragment_to_CoinsFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/fade_out"
             app:destination="@id/CoinsFragment" />
         <action
             android:id="@+id/action_MaintenanceFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_in"
             app:destination="@id/MaintenanceFragment" />
     </fragment>
     <fragment
@@ -26,6 +30,8 @@
 
         <action
             android:id="@+id/action_CoinsFragment_to_ProductsFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/slide_out_down"
             app:destination="@id/ProductsFragment" />
         <action
             android:id="@+id/action_MaintenanceFragment"
