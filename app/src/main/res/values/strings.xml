@@ -2,16 +2,17 @@
     <string name="app_name">Vending Machine</string>
     <string name="action_settings">Maintenance</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="products_fragment_label">First Fragment</string>
-    <string name="coins_fragment_label">Second Fragment</string>
-    <string name="maintenance_fragment_label">Third Fragment</string>
+    <string name="products_fragment_label">Products Fragment</string>
+    <string name="coins_fragment_label">Coins Fragment</string>
+    <string name="splash_fragment_label">Splash Fragment</string>
+    <string name="maintenance_fragment_label">Maintenance Fragment</string>
     <string name="reset_products">Reset Products</string>
     <string name="cancel">Cancel</string>
     <string name="exit">Exit</string>
     <string name="exit_toast">Click BACK again to exit</string>
 
-    <string name="coins_inserted">Coins Inserted</string>
-    <string name="product_price">Product Price</string>
+    <string name="coins_inserted">Coins\nInserted</string>
+    <string name="product_price">Product\nPrice</string>
     <string name="product_no_quantity">No Quantity</string>
     <string name="alert_title_thank_you">THANK YOU!</string>
     <string name="alert_text_get_product">Please get your product</string>
@@ -34,5 +35,7 @@
     <string name="alert_quit_maintenance_text">Are you sure?</string>
     <string name="alert_quit_maintenance_ok">@android:string/yes</string>
     <string name="alert_quit_maintenance_cancel">@android:string/cancel</string>
+
+    <string name="vending_machine">Vending\nMachine</string>
 
 </resources>

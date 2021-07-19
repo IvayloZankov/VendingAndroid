@@ -3,6 +3,8 @@ package com.example.vending.user;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +40,9 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
     MainActivity activity;
     private List<ItemData> coinsUser;
 
+    private CoinsAdapter adapter;
+    boolean isClickable;
+
     private int pPos;
     private String pName;
     private Double pPrice;
@@ -63,7 +68,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         coinsUser = new ArrayList<>();
         coinsMachine = activity.getCoins();
         coinsCounter = new CoinsCounter();
-        CoinsAdapter adapter = new CoinsAdapter(coinsMachine, this);
+        adapter = new CoinsAdapter(coinsMachine, this);
 
         TextView productName = view.findViewById(R.id.product_name);
         coinsAmount = view.findViewById(R.id.coins_inserted_amount);
@@ -82,6 +87,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
                 showGetCoinsAlert(coinsUser, true);
             }
         });
+        isClickable = true;
     }
 
     private void updateInsertedAmount(ItemData item) {
@@ -134,6 +140,12 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
 
     @Override
     public void onCoinClick(int position, View v) {
+        if (isClickable) {
+            registerCoinClick(position, v);
+        }
+    }
+
+    public void registerCoinClick(int position, View v) {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
             return;
         }
@@ -148,11 +160,21 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         coinsCounter.insertCoin(coinsMachine.get(position), coinsUser);
         coinsAmount.setText(insertedAmount);
         if (Double.parseDouble(insertedAmount) >= Double.parseDouble(productPrice.getText().toString())) {
-            coinsCounter.addCoinsToStorage(coinsUser, coinsMachine);
-            List<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, coinsMachine);
-            ((MainActivity) getActivity()).decreaseProductQuantity(pPos);
-            showGetCoinsAlert(coinsForReturn, false);
+            isClickable = false;
+            addAndReturnCoins();
         }
+    }
+
+    private void addAndReturnCoins() {
+        coinsCounter.addCoinsToStorage(coinsUser, coinsMachine);
+        List<ItemData> coinsForReturn = coinsCounter.calculateReturningCoins(insertedAmount, selectedProductPrice, coinsMachine);
+        ((MainActivity) getActivity()).decreaseProductQuantity(pPos);
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showGetCoinsAlert(coinsForReturn, false);
+            }
+        }, 300);
     }
 
     private void handleBackButton() {

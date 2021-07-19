@@ -53,7 +53,7 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         adapter = new ProductsAdapter(products, this);
         productsList.setAdapter(adapter);
 
-        if (network.isNetworkAvailable() && !activity.canReturnChange()) {
+        if (network.isNetworkAvailable() && activity.getCoins().get(0).getQuantity() < 40) {
             showOutOfOrderAlert();
         }
     }

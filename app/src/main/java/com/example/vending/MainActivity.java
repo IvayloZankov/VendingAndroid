@@ -40,6 +40,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        productsStorage = new ArrayList<>();
+        coinsStorage = new ArrayList<>();
 
 //        ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -48,12 +53,7 @@ public class MainActivity extends AppCompatActivity {
             executor = Executors.newSingleThreadExecutor();
 //            initLoadingDialog();
             serverRequest(getString(R.string.request_products));
-            serverRequest(getString(R.string.request_coins));
         } else {
-            productsStorage = new ArrayList<>();
-            setContentView(R.layout.activity_main);
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
             network.showNoInternetDialog(this);
         }
     }
@@ -94,11 +94,12 @@ public class MainActivity extends AppCompatActivity {
                 if (jsonArray != null) {
                     if (request.equalsIgnoreCase(getString(R.string.request_products))) {
                         loadProductsToStorage(jsonArray);
+                        serverRequest(getString(R.string.request_coins));
                     } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
                         loadCoinsToStorage(jsonArray);
-                        setContentView(R.layout.activity_main);
-                        Toolbar toolbar = findViewById(R.id.toolbar);
-                        setSupportActionBar(toolbar);
+                        Fragment primaryNavigationFragment = getSupportFragmentManager().getPrimaryNavigationFragment();
+                        NavHostFragment.findNavController(primaryNavigationFragment)
+                                .navigate(R.id.action_SplashFragment_to_ProductsFragment);
                         executor.shutdown();
                     }
                 }
@@ -135,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadProductsToStorage(JSONArray jsonArray) {
-        productsStorage = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject item;
             try {
@@ -154,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadCoinsToStorage(JSONArray jsonArray) {
-        coinsStorage = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject item;
             try {
@@ -182,9 +181,5 @@ public class MainActivity extends AppCompatActivity {
 
     public List<ItemData> getCoins() {
         return coinsStorage;
-    }
-
-    public boolean canReturnChange() {
-        return coinsStorage.get(0).getQuantity() > 40;
     }
 }

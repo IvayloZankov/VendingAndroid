@@ -3,7 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/ProductsFragment">
+    app:startDestination="@id/SplashFragment">
+
+    <fragment
+        android:id="@+id/SplashFragment"
+        android:name="com.example.vending.SplashFragment"
+        android:label="@string/splash_fragment_label"
+        tools:layout="@layout/fragment_products">
+
+        <action
+            android:id="@+id/action_SplashFragment_to_ProductsFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:destination="@id/ProductsFragment" />
+
+        <action
+            android:id="@+id/action_MaintenanceFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:destination="@id/MaintenanceFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/ProductsFragment"
@@ -18,8 +37,8 @@
             app:destination="@id/CoinsFragment" />
         <action
             android:id="@+id/action_MaintenanceFragment"
-            app:enterAnim="@android:anim/fade_in"
-            app:exitAnim="@android:anim/fade_in"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
             app:destination="@id/MaintenanceFragment" />
     </fragment>
     <fragment
@@ -35,6 +54,8 @@
             app:destination="@id/ProductsFragment" />
         <action
             android:id="@+id/action_MaintenanceFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
             app:destination="@id/MaintenanceFragment" />
     </fragment>
     <fragment
@@ -45,9 +66,13 @@
 
         <action
             android:id="@+id/action_MaintenanceFragment_to_ProductsFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
             app:destination="@id/ProductsFragment" />
         <action
             android:id="@+id/action_MaintenanceFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
             app:destination="@id/MaintenanceFragment" />
     </fragment>
 </navigation>
