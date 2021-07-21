@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,13 +115,9 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
             bundle.putString(getString(R.string.item_name_key), itemData.getName());
             bundle.putDouble(getString(R.string.item_price_key), itemData.getPrice());
             bundle.putInt(getString(R.string.item_position_key), position);
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-                    NavHostFragment.findNavController(getFragment())
-                            .navigate(R.id.action_ProductsFragment_to_CoinsFragment, bundle);
-//                }
-//            }, 200);
+            Log.e("FRAG", String.valueOf(getFragment()));
+            NavHostFragment.findNavController(getFragment())
+                    .navigate(R.id.action_ProductsFragment_to_CoinsFragment, bundle);
         }
     }
 

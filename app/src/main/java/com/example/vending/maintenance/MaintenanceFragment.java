@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,11 +112,14 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
                         }
                         JSONArray jsonArray = Utils.extractJsonArray(json, getString(R.string.request_data));
                         if (jsonArray != null) {
+                            MainActivity mainActivity = (MainActivity) getActivity();
                             if (request.equalsIgnoreCase(getString(R.string.request_products))) {
-                                ((MainActivity) getActivity()).loadProductsToStorage(jsonArray);
+                                mainActivity.productsStorage = new ArrayList<>();
+                                mainActivity.loadProductsToStorage(jsonArray);
                                 Toast.makeText(getContext(), "Products reset", Toast.LENGTH_SHORT).show();
                             } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
-                                ((MainActivity) getActivity()).loadCoinsToStorage(jsonArray);
+                                mainActivity.coinsStorage = new ArrayList<>();
+                                mainActivity.loadCoinsToStorage(jsonArray);
                                 Toast.makeText(getContext(), "Coins reset", Toast.LENGTH_SHORT).show();
                             }
                         }

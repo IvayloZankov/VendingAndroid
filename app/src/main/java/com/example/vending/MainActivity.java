@@ -11,9 +11,11 @@ import androidx.navigation.fragment.NavHostFragment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.vending.server.ServerRequestRx;
 import com.example.vending.server.Utils;
 import com.example.vending.server.RequestMethod;
 import com.example.vending.server.ServerRequest;
@@ -26,6 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import io.reactivex.Flowable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -77,55 +85,55 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void serverRequest(String request) {
-        Handler handler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                Bundle bundle = msg.getData();
-                String jsonString = bundle.getString(getString(R.string.request_items));
-
-                JSONObject json = null;
-                try {
-                    json = new JSONObject(jsonString);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                JSONArray jsonArray = Utils.extractJsonArray(json, getString(R.string.request_data));
-                if (jsonArray != null) {
-                    if (request.equalsIgnoreCase(getString(R.string.request_products))) {
-                        loadProductsToStorage(jsonArray);
-                        serverRequest(getString(R.string.request_coins));
-                    } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
-                        loadCoinsToStorage(jsonArray);
-                        Fragment primaryNavigationFragment = getSupportFragmentManager().getPrimaryNavigationFragment();
-                        NavHostFragment.findNavController(primaryNavigationFragment)
-                                .navigate(R.id.action_SplashFragment_to_ProductsFragment);
-                        executor.shutdown();
-                    }
-                }
-            }
-        };
-
-        Runnable runnable = new Runnable() {
-            public void run() {
-                JSONObject json = null;
-                if (request.equalsIgnoreCase(getString(R.string.request_products))) {
-                    json = new ServerRequest().getResponse(RequestMethod.GET, request);
-                } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
-                    json = new ServerRequest().getResponse(RequestMethod.GET, request);
-                }
-                if (json != null) {
-                    String jsonString = json.toString();
-                    Message msg = handler.obtainMessage();
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(getString(R.string.request_items), jsonString);
-                    msg.setData(bundle);
-                    handler.sendMessage(msg);
-                }
-            }
-        };
-        executor.submit(runnable);
-    }
+//    private void serverRequest(String request) {
+//        Handler handler = new Handler(Looper.getMainLooper()) {
+//            @Override
+//            public void handleMessage(Message msg) {
+//                Bundle bundle = msg.getData();
+//                String jsonString = bundle.getString(getString(R.string.request_items));
+//
+//                JSONObject json = null;
+//                try {
+//                    json = new JSONObject(jsonString);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                JSONArray jsonArray = Utils.extractJsonArray(json, getString(R.string.request_data));
+//                if (jsonArray != null) {
+//                    if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+//                        loadProductsToStorage(jsonArray);
+//                        serverRequest(getString(R.string.request_coins));
+//                    } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+//                        loadCoinsToStorage(jsonArray);
+//                        Fragment primaryNavigationFragment = getSupportFragmentManager().getPrimaryNavigationFragment();
+//                        NavHostFragment.findNavController(primaryNavigationFragment)
+//                                .navigate(R.id.action_SplashFragment_to_ProductsFragment);
+//                        executor.shutdown();
+//                    }
+//                }
+//            }
+//        };
+//
+//        Runnable runnable = new Runnable() {
+//            public void run() {
+//                JSONObject json = null;
+//                if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+//                    json = new ServerRequest().getResponse(RequestMethod.GET, request);
+//                } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+//                    json = new ServerRequest().getResponse(RequestMethod.GET, request);
+//                }
+//                if (json != null) {
+//                    String jsonString = json.toString();
+//                    Message msg = handler.obtainMessage();
+//                    Bundle bundle = new Bundle();
+//                    bundle.putSerializable(getString(R.string.request_items), jsonString);
+//                    msg.setData(bundle);
+//                    handler.sendMessage(msg);
+//                }
+//            }
+//        };
+//        executor.submit(runnable);
+//    }
 
     private void initLoadingDialog() {
         loadingDialog = new ProgressDialog(MainActivity.this);
@@ -181,5 +189,61 @@ public class MainActivity extends AppCompatActivity {
 
     public List<ItemData> getCoins() {
         return coinsStorage;
+    }
+
+    private void serverRequest(String request) {
+        ServerRequestRx.RxRequest instance = new ServerRequestRx().getInstance();
+
+        Flowable<ResponseBody> response = null;
+        if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+            response = instance.get(request);
+        } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+            response = instance.get(request);
+        }
+        if (response != null)
+        response
+                .toObservable()
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<ResponseBody>() {
+                    @Override
+                    public void onSubscribe(Disposable disposable) {
+//                        Log.e("onSubscribe: ", "in");
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        Log.e("onNext: ", "in");
+                        try {
+                            JSONObject json = new JSONObject(responseBody.string());
+                            Log.e("JSON", json.toString());
+                            if (request.equalsIgnoreCase(getString(R.string.request_products))) {
+                                JSONArray jsonArray = Utils.extractJsonArray(json, getString(R.string.request_data));
+                                if (jsonArray != null) {
+                                    loadProductsToStorage(jsonArray);
+                                    serverRequest(getString(R.string.request_coins));
+                                }
+                            } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
+                                JSONArray jsonArray = Utils.extractJsonArray(json, getString(R.string.request_data));
+                                loadCoinsToStorage(jsonArray);
+                                Fragment primaryNavigationFragment = getSupportFragmentManager().getPrimaryNavigationFragment();
+                                Log.e("PRIM", String.valueOf(primaryNavigationFragment));
+                                NavHostFragment.findNavController(primaryNavigationFragment)
+                                        .navigate(R.id.action_SplashFragment_to_ProductsFragment);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+//                        Log.e("onError: ", "in");
+                    }
+
+                    @Override
+                    public void onComplete() {
+//                        Log.e("onComplete: ", "in");
+                    }
+                });
     }
 }
