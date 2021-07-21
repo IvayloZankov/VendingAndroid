@@ -115,13 +115,8 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
             bundle.putString(getString(R.string.item_name_key), itemData.getName());
             bundle.putDouble(getString(R.string.item_price_key), itemData.getPrice());
             bundle.putInt(getString(R.string.item_position_key), position);
-            Log.e("FRAG", String.valueOf(getFragment()));
-            NavHostFragment.findNavController(getFragment())
+            NavHostFragment.findNavController(ProductsFragment.this)
                     .navigate(R.id.action_ProductsFragment_to_CoinsFragment, bundle);
         }
-    }
-
-    private Fragment getFragment() {
-        return this;
     }
 }

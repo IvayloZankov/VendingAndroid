@@ -1,21 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".SplashFragment"
     android:background="?attr/colorOnPrimary"
-    >
+    android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
+        android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textSize="60sp"
-        android:gravity="center"
-        android:text="@string/vending_machine"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        />
+        >
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="60sp"
+            android:gravity="center"
+            android:text="@string/vending_machine"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutNoConnection"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/noConnectionText"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/button_retry"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:text="@string/no_internet_connection"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            />
+        <Button
+            android:id="@+id/button_retry"
+            app:layout_constraintTop_toBottomOf="@id/noConnectionText"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_margin="32dp"
+            android:text="@string/retry_button"
+            android:textColor="@color/white"
+            android:background="@drawable/coin_amounts_button_round_background"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
