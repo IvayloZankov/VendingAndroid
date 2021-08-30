@@ -5,7 +5,10 @@
     <string name="request_data" translatable="false">data</string>
     <string name="zero_amount" translatable="false">0.00</string>
     <string name="item_position_key" translatable="false">position</string>
+    <string name="products_prefix" translatable="false">products</string>
+    <string name="coins_prefix" translatable="false">coins</string>
     <string name="item_name_key" translatable="false">name</string>
     <string name="item_price_key" translatable="false">price</string>
     <string name="item_quantity_key" translatable="false">quantity</string>
+
 </resources>

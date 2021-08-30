@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.ItemData;
+import com.example.vending.server.ModelData;
 
 import java.util.List;
 import java.util.Locale;
@@ -17,9 +17,9 @@ import java.util.Locale;
 public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder> {
 
     private CoinListener cListener;
-    private List<ItemData> mCoins;
+    private List<ModelData.Item> mCoins;
 
-    public CoinsAdapter(List<ItemData> mCoins, CoinListener cListener) {
+    public CoinsAdapter(List<ModelData.Item> mCoins, CoinListener cListener) {
         this.mCoins = mCoins;
         this.cListener = cListener;
     }
@@ -51,7 +51,7 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
 
         public View mView;
         public TextView mNominal;
-        public ItemData mItem;
+        public ModelData.Item mItem;
 
         CoinListener cListener;
 

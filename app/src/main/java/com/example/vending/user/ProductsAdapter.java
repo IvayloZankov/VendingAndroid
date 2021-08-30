@@ -1,6 +1,5 @@
 package com.example.vending.user;
 
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -9,18 +8,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.vending.R;
-import com.example.vending.ItemData;
+import com.example.vending.server.ModelData;
 
 import java.util.List;
 import java.util.Locale;
 
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductHolder> {
 
-    private List<ItemData> mProducts;
+    private List<ModelData.Item> mProducts;
     private ProductListener pListener;
     private int mCheckedItem;
 
-    public ProductsAdapter(List<ItemData> products, ProductListener pListener) {
+    public ProductsAdapter(List<ModelData.Item> products, ProductListener pListener) {
         this.mProducts = products;
         this.pListener = pListener;
         this.mCheckedItem = -1;
@@ -57,7 +56,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         public final View mView;
         public final TextView mName;
         public final TextView mPrice;
-        public ItemData mItem;
+        public ModelData.Item mItem;
 
         ProductListener pListener;
 
@@ -81,7 +80,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         }
     }
 
-    public void refreshScreen(List<ItemData> items) {
+    public void refreshScreen(List<ModelData.Item> items) {
         this.mProducts = items;
         notifyDataSetChanged();
     }

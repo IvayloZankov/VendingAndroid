@@ -1,5 +1,7 @@
 package com.example.vending;
 
+import com.example.vending.server.ModelData;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +14,7 @@ public class CoinsCounter {
     /**
      * Insert coins method
      */
-    public void insertCoin(ItemData coin, List<ItemData> storage) {
+    public void insertCoin(ModelData.Item coin, List<ModelData.Item> storage) {
         String selectedCoinName = coin.getName();
         double selectedCoinValue = coin.getPrice();
         boolean isPresent = false;
@@ -28,7 +30,7 @@ public class CoinsCounter {
             }
         }
         if (!isPresent) {
-            storage.add(storage.size(), new ItemData(selectedCoinName, selectedCoinValue, 1));
+            storage.add(storage.size(), new ModelData.Item(selectedCoinName, selectedCoinValue, 1));
         }
     }
 
@@ -61,9 +63,9 @@ public class CoinsCounter {
      * Method to calculate the coins needed for change in descending order
      * @return - returned coins as String
      */
-    public List<ItemData> calculateReturningCoins(String sumInserted, String productPrice, List<ItemData> storage) {
+    public List<ModelData.Item> calculateReturningCoins(String sumInserted, String productPrice, List<ModelData.Item> storage) {
         String change = calculateChange(sumInserted, productPrice);
-        List<ItemData> coinsAsChange = new ArrayList<>();
+        List<ModelData.Item> coinsAsChange = new ArrayList<>();
         BigDecimal calculatedChangeDecimal = new BigDecimal(change);
 
         while (Double.parseDouble(calculatedChangeDecimal.toString()) > 0.00) {
@@ -93,12 +95,12 @@ public class CoinsCounter {
     /**
      * Adds inserted coins to the coins in the machine
      */
-    public void addCoinsToStorage(List<ItemData> storageUser, List<ItemData> storageMachine) {
+    public void addCoinsToStorage(List<ModelData.Item> storageUser, List<ModelData.Item> storageMachine) {
         for (int i = 0; i < storageUser.size(); i++) {
-            ItemData userCoin = storageUser.get(i);
+            ModelData.Item userCoin = storageUser.get(i);
             String tempCoinName = userCoin.getName();
             for (int j = 0; j < storageMachine.size(); j++) {
-                ItemData coinMachine = storageMachine.get(j);
+                ModelData.Item coinMachine = storageMachine.get(j);
                 String storageCoinName = coinMachine.getName();
                 if (tempCoinName.equalsIgnoreCase(storageCoinName)) {
                     coinMachine.increaseQuantity(userCoin.getQuantity());
