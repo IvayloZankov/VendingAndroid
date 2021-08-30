@@ -1,16 +1,13 @@
 package com.example.vending.user;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -20,9 +17,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.ItemData;
-import com.example.vending.MainActivity;
-import com.example.vending.NetworkHandler;
+import com.example.vending.Utils;
+import com.example.vending.VendingActivity;
+import com.example.vending.server.ModelData;
 
 import java.util.List;
 
@@ -32,8 +29,7 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
     private ProductsAdapter adapter;
     private long mLastClickTime = 0;
 
-    private NetworkHandler network;
-    private List<ItemData> products;
+    private List<ModelData.Item> products;
 
     boolean doubleBackToExitPressedOnce = false;
 
@@ -44,8 +40,7 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        network = new NetworkHandler(getContext());
-        MainActivity activity = (MainActivity) getActivity();
+        VendingActivity activity = (VendingActivity) getActivity();
         products = activity.getProducts();
 
         handleBackButton();
@@ -54,21 +49,25 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         adapter = new ProductsAdapter(products, this);
         productsList.setAdapter(adapter);
 
-        if (network.isNetworkAvailable() && activity.getCoins().get(0).getQuantity() < 40) {
+        List<ModelData.Item> coins = activity.getCoins();
+        ModelData.Item item = coins.get(0);
+        int quantity = item.getQuantity();
+
+        if (quantity < 40) {
             showOutOfOrderAlert();
         }
     }
 
     private void showOutOfOrderAlert() {
+        Utils.playSound(getContext(), R.raw.out_of_order);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setTitle(R.string.alert_title_out_of_order);
         alertDialogBuilder.setMessage(R.string.alert_text_enter_maintenance);
-        alertDialogBuilder.setPositiveButton(R.string.alert_out_of_order_reset, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
+        alertDialogBuilder.setPositiveButton(R.string.alert_out_of_order_reset, (dialog, which) -> {
+                Utils.playSound(getContext(), R.raw.click_default);
                 NavHostFragment.findNavController(getParentFragment())
                         .navigate(R.id.action_MaintenanceFragment);
-            }
-                })
+        })
         .setCancelable(false).show();
     }
 
@@ -83,12 +82,7 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
                 doubleBackToExitPressedOnce = true;
                 Toast.makeText(getContext(), R.string.exit_toast, Toast.LENGTH_SHORT).show();
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        doubleBackToExitPressedOnce = false;
-                    }
-                }, 2000);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
@@ -100,23 +94,21 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
+        View viewButton = v.findViewById(R.id.product_button);
         if (products.get(position).getQuantity() > 0) {
-            View button = v.findViewById(R.id.product_button);
-            button.setBackgroundResource(R.drawable.button_round_background_pressed);
-//            Animation press = AnimationUtils.loadAnimation(getContext(), R.anim.press);
-            button.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).withEndAction(new Runnable() {
-                @Override
-                public void run() {
-                    button.animate().scaleX(1).scaleY(1).setDuration(100);
-                }
-            });
-            ItemData itemData = products.get(position);
+            Utils.playSound(getContext(), R.raw.click_default);
+            Utils.animateClick(viewButton);
+            viewButton.setBackgroundResource(R.drawable.button_round_background_pressed);
+            ModelData.Item itemData = products.get(position);
             Bundle bundle = new Bundle();
             bundle.putString(getString(R.string.item_name_key), itemData.getName());
             bundle.putDouble(getString(R.string.item_price_key), itemData.getPrice());
             bundle.putInt(getString(R.string.item_position_key), position);
             NavHostFragment.findNavController(ProductsFragment.this)
                     .navigate(R.id.action_ProductsFragment_to_CoinsFragment, bundle);
+        } else {
+            Utils.playSound(getContext(), R.raw.click_default);
+            Utils.animateClick(viewButton);
         }
     }
 }

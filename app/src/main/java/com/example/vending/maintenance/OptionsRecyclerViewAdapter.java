@@ -16,8 +16,6 @@ public class OptionsRecyclerViewAdapter extends RecyclerView.Adapter<OptionsRecy
     private List<MaintenanceOption> mOptions;
     private OptionListener mOptionListener;
 
-    private long mLastClickTime = 0;
-
     public OptionsRecyclerViewAdapter(List<MaintenanceOption> options, OptionListener optionListener) {
         mOptions = options;
         this.mOptionListener = optionListener;
@@ -62,7 +60,7 @@ public class OptionsRecyclerViewAdapter extends RecyclerView.Adapter<OptionsRecy
 
         @Override
         public void onClick(View v) {
-            optionListener.onOptionClicked(getAdapterPosition());
+            optionListener.onOptionClicked(getAbsoluteAdapterPosition());
         }
     }
 }

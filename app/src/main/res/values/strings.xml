@@ -31,6 +31,9 @@
     <string name="checking_connection">Connecting…</string>
     <string name="loading_products">Loading Products</string>
 
+    <string name="maintenance_products_reset">Products reset</string>
+    <string name="maintenance_coins_reset">Coins reset</string>
+
     <string name="alert_quit_maintenance_title">Quit maintenance</string>
     <string name="alert_maintenance_reset_products">Reset products</string>
     <string name="alert_maintenance_reset_coins">Reset coins</string>

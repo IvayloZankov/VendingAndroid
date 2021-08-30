@@ -13,11 +13,16 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="popupMenuStyle">@style/MyCustomStyle</item>
     </style>
 
     <style name="Theme.Vending.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="MyCustomStyle" parent="android:Widget.Material.Light.ListPopupWindow">
+        <item name="android:popupBackground">?attr/colorPrimary</item>
     </style>
 
     <style name="Theme.Vending.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
