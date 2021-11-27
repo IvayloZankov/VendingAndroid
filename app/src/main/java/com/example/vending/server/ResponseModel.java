@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class ModelData {
+public class ResponseModel {
 
     @SerializedName("data")
     private List<Item> items;
@@ -14,8 +14,8 @@ public class ModelData {
     }
 
     public static class Item {
-        private String name;
-        private double price;
+        private final String name;
+        private final double price;
         private int quantity;
 
         public Item(String name, double price, int quantity) {

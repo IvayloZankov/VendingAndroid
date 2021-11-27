@@ -11,16 +11,16 @@ import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
 import retrofit2.http.Url;
 
-public interface RequestApi {
+public interface VendingApi {
 
     String PRODUCTS_URL = "products.txt";
     String COINS_URL = "coins.txt";
 
     @GET(PRODUCTS_URL)
-    Single<ModelData> getProducts();
+    Single<ResponseModel> getProducts();
 
     @GET(COINS_URL)
-    Single<ModelData> getCoins();
+    Single<ResponseModel> getCoins();
 
     @POST
     Single<ResponseBody> post(

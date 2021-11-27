@@ -9,17 +9,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.server.ModelData;
+import com.example.vending.server.ResponseModel;
 
 import java.util.List;
 import java.util.Locale;
 
 public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder> {
 
-    private CoinListener cListener;
-    private List<ModelData.Item> mCoins;
+    private final CoinListener cListener;
+    private final List<ResponseModel.Item> mCoins;
 
-    public CoinsAdapter(List<ModelData.Item> mCoins, CoinListener cListener) {
+    public CoinsAdapter(List<ResponseModel.Item> mCoins, CoinListener cListener) {
         this.mCoins = mCoins;
         this.cListener = cListener;
     }
@@ -29,7 +29,7 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
     public CoinsHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_coin, parent, false);
-        return new CoinsAdapter.CoinsHolder(view, cListener);
+        return new CoinsHolder(view, cListener);
     }
 
     @Override
@@ -47,11 +47,11 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
         void onCoinClick(int position, View v);
     }
 
-    public class CoinsHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class CoinsHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public View mView;
         public TextView mNominal;
-        public ModelData.Item mItem;
+        public ResponseModel.Item mItem;
 
         CoinListener cListener;
 

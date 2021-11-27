@@ -1,5 +1,6 @@
 package com.example.vending.user;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -8,23 +9,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.vending.R;
-import com.example.vending.server.ModelData;
+import com.example.vending.server.ResponseModel;
 
 import java.util.List;
 import java.util.Locale;
 
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductHolder> {
 
-    private List<ModelData.Item> mProducts;
-    private ProductListener pListener;
-    private int mCheckedItem;
+    private final List<ResponseModel.Item> mProducts;
+    private final ProductListener pListener;
 
-    public ProductsAdapter(List<ModelData.Item> products, ProductListener pListener) {
+    public ProductsAdapter(List<ResponseModel.Item> products, ProductListener pListener) {
         this.mProducts = products;
         this.pListener = pListener;
-        this.mCheckedItem = -1;
     }
 
+    @NonNull
     @Override
     public ProductHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -52,11 +52,11 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         void onProductClick(int position, View v);
     }
 
-    public class ProductHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ProductHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final View mView;
         public final TextView mName;
         public final TextView mPrice;
-        public ModelData.Item mItem;
+        public ResponseModel.Item mItem;
 
         ProductListener pListener;
 
@@ -69,6 +69,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
             mView.setOnClickListener(this);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return super.toString() + " '" + mPrice.getText() + "'";
@@ -78,10 +79,5 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         public void onClick(View v) {
             pListener.onProductClick(getAbsoluteAdapterPosition(), v);
         }
-    }
-
-    public void refreshScreen(List<ModelData.Item> items) {
-        this.mProducts = items;
-        notifyDataSetChanged();
     }
 }

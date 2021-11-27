@@ -13,24 +13,22 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
 import com.example.vending.Utils;
 import com.example.vending.VendingActivity;
-import com.example.vending.server.ModelData;
+import com.example.vending.server.ResponseModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductsFragment extends Fragment implements ProductsAdapter.ProductListener {
 
-    private RecyclerView productsList;
-    private ProductsAdapter adapter;
     private long mLastClickTime = 0;
-
-    private List<ModelData.Item> products;
-
+    private List<ResponseModel.Item> products;
     boolean doubleBackToExitPressedOnce = false;
 
     @Override
@@ -41,21 +39,32 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         VendingActivity activity = (VendingActivity) getActivity();
-        products = activity.getProducts();
+        products = activity != null ? activity.getProducts() : new ArrayList<>();
 
         handleBackButton();
 
-        productsList = view.findViewById(R.id.products_list);
-        adapter = new ProductsAdapter(products, this);
+
+        initRecyclerView(view);
+
+        checkIfCoinsToOperate();
+    }
+
+    private void initRecyclerView(View view) {
+        RecyclerView productsList = view.findViewById(R.id.products_list);
+        ProductsAdapter adapter = new ProductsAdapter(products, this);
         productsList.setAdapter(adapter);
+    }
 
-        List<ModelData.Item> coins = activity.getCoins();
-        ModelData.Item item = coins.get(0);
-        int quantity = item.getQuantity();
-
-        if (quantity < 40) {
-            showOutOfOrderAlert();
-        }
+    private void checkIfCoinsToOperate() {
+        VendingActivity activity = (VendingActivity) getActivity();
+        List<ResponseModel.Item> coins = activity != null ? activity.getCoins() : new ArrayList<>();
+        if (coins.size() > 0) {
+            ResponseModel.Item item = coins.get(0);
+            int quantity = item.getQuantity();
+            if (quantity < 40) {
+                showOutOfOrderAlert();
+            }
+        } else showOutOfOrderAlert();
     }
 
     private void showOutOfOrderAlert() {
@@ -65,7 +74,9 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         alertDialogBuilder.setMessage(R.string.alert_text_enter_maintenance);
         alertDialogBuilder.setPositiveButton(R.string.alert_out_of_order_reset, (dialog, which) -> {
                 Utils.playSound(getContext(), R.raw.click_default);
-                NavHostFragment.findNavController(getParentFragment())
+            Fragment parentFragment = getParentFragment();
+            if (parentFragment != null)
+            NavHostFragment.findNavController(parentFragment)
                         .navigate(R.id.action_MaintenanceFragment);
         })
         .setCancelable(false).show();
@@ -76,7 +87,8 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
             @Override
             public void handleOnBackPressed() {
                 if (doubleBackToExitPressedOnce) {
-                    getActivity().finish();
+                    FragmentActivity activity = getActivity();
+                    if (activity != null) activity.finish();
                     return;
                 }
                 doubleBackToExitPressedOnce = true;
@@ -99,7 +111,7 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
             Utils.playSound(getContext(), R.raw.click_default);
             Utils.animateClick(viewButton);
             viewButton.setBackgroundResource(R.drawable.button_round_background_pressed);
-            ModelData.Item itemData = products.get(position);
+            ResponseModel.Item itemData = products.get(position);
             Bundle bundle = new Bundle();
             bundle.putString(getString(R.string.item_name_key), itemData.getName());
             bundle.putDouble(getString(R.string.item_price_key), itemData.getPrice());

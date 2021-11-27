@@ -11,7 +11,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.vending.server.ModelData;
+import com.example.vending.server.ResponseModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -21,8 +21,8 @@ import java.util.List;
 
 public class VendingActivity extends AppCompatActivity {
 
-    public List<ModelData.Item> productsStorage;
-    public List<ModelData.Item> coinsStorage;
+    public List<ResponseModel.Item> productsStorage;
+    public List<ResponseModel.Item> coinsStorage;
 
     ProgressDialog loadingDialog;
 
@@ -54,6 +54,7 @@ public class VendingActivity extends AppCompatActivity {
             Utils.playSound(this, R.raw.click_default);
             //TODO button at maintenance fragment
             Fragment primaryNavigationFragment = getSupportFragmentManager().getPrimaryNavigationFragment();
+            if (primaryNavigationFragment != null)
             NavHostFragment.findNavController(primaryNavigationFragment)
                     .navigate(R.id.action_MaintenanceFragment);
             return true;
@@ -70,12 +71,12 @@ public class VendingActivity extends AppCompatActivity {
     }
 
     public void loadProductsToStorage(String products) {
-        Type typeToken = new TypeToken<ArrayList<ModelData.Item>>() {}.getType();
+        Type typeToken = new TypeToken<ArrayList<ResponseModel.Item>>() {}.getType();
         productsStorage = new Gson().fromJson(products, typeToken);
     }
 
     public void loadCoinsToStorage(String coins) {
-        Type typeToken = new TypeToken<ArrayList<ModelData.Item>>() {}.getType();
+        Type typeToken = new TypeToken<ArrayList<ResponseModel.Item>>() {}.getType();
         coinsStorage = new Gson().fromJson(coins, typeToken);
     }
 
@@ -83,11 +84,11 @@ public class VendingActivity extends AppCompatActivity {
         productsStorage.get(pos).decreaseQuantity();
     }
 
-    public List<ModelData.Item> getProducts() {
+    public List<ResponseModel.Item> getProducts() {
         return productsStorage;
     }
 
-    public List<ModelData.Item> getCoins() {
+    public List<ResponseModel.Item> getCoins() {
         return coinsStorage;
     }
 }

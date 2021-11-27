@@ -17,27 +17,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.vending.R;
 import com.example.vending.VendingActivity;
 import com.example.vending.Utils;
-import com.example.vending.server.ModelData;
-import com.example.vending.server.RequestApi;
-import com.example.vending.server.RetrofitVending;
+import com.example.vending.server.ResponseModel;
+import com.example.vending.server.VendingClient;
+import com.example.vending.server.VendingObserver;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 public class MaintenanceFragment extends Fragment implements OptionsRecyclerViewAdapter.OptionListener {
 
+    private final VendingClient client = new VendingClient();
     private final CompositeDisposable bag = new CompositeDisposable();
 
     private RecyclerView optionsList;
-    private OptionsRecyclerViewAdapter mAdapter;
-    private List<MaintenanceOption> mOptions;
+    private final List<MaintenanceOption> mOptions = new ArrayList<>(Arrays.asList(MaintenanceOption.values()));
     private long mLastClickTime = 0;
 
     @Override
@@ -47,23 +44,27 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mOptions = new ArrayList<>(Arrays.asList(MaintenanceOption.values()));
-
         handleBackButton();
+        initRecyclerView(view);
+        initExitButton(view);
+    }
 
-        optionsList = view.findViewById(R.id.options_list);
-        mAdapter = new OptionsRecyclerViewAdapter(mOptions, this);
-        optionsList.setAdapter(mAdapter);
-
-        view.findViewById(R.id.button_exit).setOnClickListener(view1 -> {
+    private void initExitButton(@NonNull View view) {
+        view.findViewById(R.id.button_exit).setOnClickListener(v -> {
             if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
                 return;
             }
             mLastClickTime = SystemClock.elapsedRealtime();
             Utils.playSound(getContext(), R.raw.click_default);
-            Utils.animateClick(view1);
+            Utils.animateClick(v);
             showQuitAlert();
         });
+    }
+
+    private void initRecyclerView(@NonNull View view) {
+        optionsList = view.findViewById(R.id.options_list);
+        OptionsRecyclerViewAdapter mAdapter = new OptionsRecyclerViewAdapter(mOptions, this);
+        optionsList.setAdapter(mAdapter);
     }
 
     @Override
@@ -80,53 +81,49 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
             alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
             alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, (dialog, which) -> {
                 Utils.playSound(getContext(), R.raw.click_default);
-                serverRequest(getString(R.string.request_products));
+                client.getProducts().subscribe(initProductsObserver());
             });
-
         } else if (mOptions.get(position) == MaintenanceOption.RESET_COINS) {
             alertDialogBuilder.setTitle(R.string.alert_maintenance_reset_coins);
             alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
             alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, (dialog, which) -> {
                 Utils.playSound(getContext(), R.raw.click_default);
-                serverRequest(getString(R.string.request_coins));
+                client.getCoins().subscribe(initCoinsObserver());
             });
         }
-        alertDialogBuilder.setNegativeButton(R.string.alert_quit_maintenance_cancel, (dialog, which) -> {
-            Utils.playSound(getContext(), R.raw.click_default);
-        });
+        alertDialogBuilder.setNegativeButton(R.string.alert_quit_maintenance_cancel,
+                (dialog, which) -> Utils.playSound(getContext(), R.raw.click_default));
         alertDialogBuilder.setCancelable(false).show();
     }
 
-    private void serverRequest(String request) {
-        VendingActivity vendingActivity = (VendingActivity) getActivity();
-        Consumer<Throwable> onError = throwable -> {
-            Utils.showNoInternetDialog(getActivity());
+    private VendingObserver<ResponseModel> initProductsObserver() {
+        return new VendingObserver<ResponseModel>(bag, getContext()) {
+            @Override
+            public void onSuccess(@NonNull ResponseModel responseModel) {
+                VendingActivity vendingActivity = (VendingActivity) getActivity();
+                if (vendingActivity != null) {
+                    List<ResponseModel.Item> items = responseModel.getItems();
+                    vendingActivity.productsStorage = new ArrayList<>();
+                    vendingActivity.loadProductsToStorage(new Gson().toJson(items));
+                    Toast.makeText(getContext(), getString(R.string.maintenance_products_reset), Toast.LENGTH_LONG).show();
+                }
+            }
         };
-        if (request.equalsIgnoreCase(getString(R.string.request_products))) {
-            Consumer<ModelData> onSuccess = response -> {
-                List<ModelData.Item> items = response.getItems();
-                vendingActivity.productsStorage = new ArrayList<>();
-                vendingActivity.loadProductsToStorage(new Gson().toJson(items));
-                Toast.makeText(getContext(), getString(R.string.maintenance_products_reset), Toast.LENGTH_LONG).show();
-            };
-            bag.add(new RetrofitVending().getInstance().create(RequestApi.class)
-                    .getProducts()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(onSuccess, onError));
-        } else if (request.equalsIgnoreCase(getString(R.string.request_coins))) {
-            Consumer<ModelData> onSuccess = response -> {
-                List<ModelData.Item> items = response.getItems();
-                vendingActivity.coinsStorage = new ArrayList<>();
-                vendingActivity.loadCoinsToStorage(new Gson().toJson(items));
-                Toast.makeText(getContext(), getString(R.string.maintenance_coins_reset), Toast.LENGTH_LONG).show();
-            };
-            bag.add(new RetrofitVending().getInstance().create(RequestApi.class)
-                    .getCoins()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(onSuccess, onError));
-        }
+    }
+
+    private VendingObserver<ResponseModel> initCoinsObserver() {
+        return new VendingObserver<ResponseModel>(bag, getContext()) {
+            @Override
+            public void onSuccess(@NonNull ResponseModel responseModel) {
+                VendingActivity vendingActivity = (VendingActivity) getActivity();
+                if (vendingActivity != null) {
+                    List<ResponseModel.Item> items = responseModel.getItems();
+                    vendingActivity.coinsStorage = new ArrayList<>();
+                    vendingActivity.loadCoinsToStorage(new Gson().toJson(items));
+                    Toast.makeText(getContext(), getString(R.string.maintenance_coins_reset), Toast.LENGTH_LONG).show();
+                }
+            }
+        };
     }
 
     private void handleBackButton() {
