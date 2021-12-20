@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
@@ -13,8 +14,8 @@ import java.util.List;
 
 public class OptionsRecyclerViewAdapter extends RecyclerView.Adapter<OptionsRecyclerViewAdapter.ViewHolder> {
 
-    private List<MaintenanceOption> mOptions;
-    private OptionListener mOptionListener;
+    private final List<MaintenanceOption> mOptions;
+    private final OptionListener mOptionListener;
 
     public OptionsRecyclerViewAdapter(List<MaintenanceOption> options, OptionListener optionListener) {
         mOptions = options;
@@ -25,6 +26,7 @@ public class OptionsRecyclerViewAdapter extends RecyclerView.Adapter<OptionsRecy
         void onOptionClicked(int position);
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -42,17 +44,16 @@ public class OptionsRecyclerViewAdapter extends RecyclerView.Adapter<OptionsRecy
         return mOptions.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final View mView;
         public final TextView mName;
-        public String mItem;
 
-        OptionListener optionListener;
+        public final OptionListener optionListener;
 
         public ViewHolder(View view, OptionListener optionListener) {
             super(view);
             mView = view;
-            mName = (TextView) view.findViewById(R.id.maintenance_option);
+            mName = view.findViewById(R.id.maintenance_option);
             this.optionListener = optionListener;
 
             mView.setOnClickListener(this);

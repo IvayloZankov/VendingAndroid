@@ -52,7 +52,7 @@
             android:textAppearance="?attr/textAppearanceListItem"
             android:textColor="@color/white"
             android:textSize="14sp"
-            android:text="0.50"
+            tools:text="0.50"
             />
 
     </LinearLayout>

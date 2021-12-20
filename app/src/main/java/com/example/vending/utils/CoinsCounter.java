@@ -1,4 +1,4 @@
-package com.example.vending;
+package com.example.vending.utils;
 
 import com.example.vending.server.ResponseModel;
 
@@ -63,7 +63,7 @@ public class CoinsCounter {
      * Method to calculate the coins needed for change in descending order
      * @return - returned coins as String
      */
-    public List<ResponseModel.Item> calculateReturningCoins(String sumInserted, String productPrice, List<ResponseModel.Item> storage) {
+    public List<ResponseModel.Item> getReturningCoins(String sumInserted, String productPrice, List<ResponseModel.Item> storage) {
         String change = calculateChange(sumInserted, productPrice);
         List<ResponseModel.Item> coinsAsChange = new ArrayList<>();
         BigDecimal calculatedChangeDecimal = new BigDecimal(change);
@@ -89,7 +89,6 @@ public class CoinsCounter {
             }
         }
         return coinsAsChange;
-//        new StateSaver().updateCoins(coins);
     }
 
     /**
@@ -108,6 +107,5 @@ public class CoinsCounter {
                 }
             }
         }
-//        new StateSaver().updateCoins(coins);
     }
 }

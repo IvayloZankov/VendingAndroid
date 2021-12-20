@@ -1,5 +1,7 @@
 package com.example.vending.server;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -8,6 +10,12 @@ public class ResponseModel {
 
     @SerializedName("data")
     private List<Item> items;
+
+    private final Throwable error;
+
+    public ResponseModel(Throwable error) {
+        this.error = error;
+    }
 
     public List<Item> getItems() {
         return items;
@@ -43,5 +51,27 @@ public class ResponseModel {
         public void increaseQuantity(int quantity) {
             this.quantity += quantity;
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Item{" +
+                    "name='" + name + '\'' +
+                    ", price=" + price +
+                    ", quantity=" + quantity +
+                    '}';
+        }
+    }
+
+    public Throwable getError() {
+        return error;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ResponseModel{" +
+                "items=" + items +
+                '}';
     }
 }

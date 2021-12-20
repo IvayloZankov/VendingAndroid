@@ -49,11 +49,11 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
 
     public static class CoinsHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public View mView;
-        public TextView mNominal;
+        public final View mView;
+        public final TextView mNominal;
         public ResponseModel.Item mItem;
 
-        CoinListener cListener;
+        public final CoinListener cListener;
 
         public CoinsHolder(@NonNull View itemView, CoinListener cListener) {
             super(itemView);

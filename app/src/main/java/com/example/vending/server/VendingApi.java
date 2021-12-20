@@ -2,6 +2,7 @@ package com.example.vending.server;
 
 import java.util.Map;
 
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 import okhttp3.ResponseBody;
 import retrofit2.http.FieldMap;
@@ -17,10 +18,10 @@ public interface VendingApi {
     String COINS_URL = "coins.txt";
 
     @GET(PRODUCTS_URL)
-    Single<ResponseModel> getProducts();
+    Flowable<ResponseModel> getProducts();
 
     @GET(COINS_URL)
-    Single<ResponseModel> getCoins();
+    Flowable<ResponseModel> getCoins();
 
     @POST
     Single<ResponseBody> post(

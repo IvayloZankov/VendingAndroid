@@ -11,31 +11,17 @@ import androidx.navigation.fragment.NavHostFragment;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.vending.server.ResponseModel;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import com.example.vending.utils.Utils;
 
 public class VendingActivity extends AppCompatActivity {
 
-    public List<ResponseModel.Item> productsStorage;
-    public List<ResponseModel.Item> coinsStorage;
+    private static final String TAG = VendingActivity.class.getSimpleName();
 
-    ProgressDialog loadingDialog;
+    private ProgressDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        productsStorage = new ArrayList<>();
-        coinsStorage = new ArrayList<>();
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            loadProductsToStorage(extras.getString(getString(R.string.products_prefix)));
-            loadCoinsToStorage(extras.getString(getString(R.string.coins_prefix)));
-        }
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -50,13 +36,12 @@ public class VendingActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_maintenance) {
+        if (id == R.id.menu_maintenance) {
             Utils.playSound(this, R.raw.click_default);
-            //TODO button at maintenance fragment
             Fragment primaryNavigationFragment = getSupportFragmentManager().getPrimaryNavigationFragment();
             if (primaryNavigationFragment != null)
             NavHostFragment.findNavController(primaryNavigationFragment)
-                    .navigate(R.id.action_MaintenanceFragment);
+                    .navigate(R.id.action_maintenance);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -68,27 +53,5 @@ public class VendingActivity extends AppCompatActivity {
         loadingDialog.setIndeterminate(false);
         loadingDialog.setCancelable(false);
         loadingDialog.show();
-    }
-
-    public void loadProductsToStorage(String products) {
-        Type typeToken = new TypeToken<ArrayList<ResponseModel.Item>>() {}.getType();
-        productsStorage = new Gson().fromJson(products, typeToken);
-    }
-
-    public void loadCoinsToStorage(String coins) {
-        Type typeToken = new TypeToken<ArrayList<ResponseModel.Item>>() {}.getType();
-        coinsStorage = new Gson().fromJson(coins, typeToken);
-    }
-
-    public void decreaseProductQuantity(int pos) {
-        productsStorage.get(pos).decreaseQuantity();
-    }
-
-    public List<ResponseModel.Item> getProducts() {
-        return productsStorage;
-    }
-
-    public List<ResponseModel.Item> getCoins() {
-        return coinsStorage;
     }
 }

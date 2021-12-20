@@ -4,21 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="16dp"
+    android:layout_margin="12dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
     <LinearLayout
         android:id="@+id/product_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_round_background"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:backgroundTint="@color/teal_200">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/product_name_new"
@@ -28,7 +27,7 @@
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textAppearance="?attr/textAppearanceListItem"
-            android:textColor="@color/design_default_color_secondary_variant"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="22sp"
             tools:text="name" />
 
@@ -40,7 +39,7 @@
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textAppearance="?attr/textAppearanceListItem"
-            android:textColor="@color/design_default_color_secondary_variant"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="18sp"
             tools:text="price" />
     </LinearLayout>

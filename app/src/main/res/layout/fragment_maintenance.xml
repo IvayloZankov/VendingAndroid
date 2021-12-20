@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="32dp"
         android:text="@string/exit"
-        android:textColor="@color/white"
+        android:textColor="@color/design_default_color_secondary_variant"
         android:background="@drawable/coin_amounts_button_round_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -1,7 +1,6 @@
 package com.example.vending.server;
 
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 
 public class VendingClient {
@@ -12,16 +11,15 @@ public class VendingClient {
         this.vendingApi = RetrofitClient.getInstance().create(VendingApi.class);
     }
 
-    public Single<ResponseModel> getProducts() {
+    public Flowable<ResponseModel> getProducts() {
         return subscribe(vendingApi.getProducts());
     }
 
-    public Single<ResponseModel> getCoins() {
+    public Flowable<ResponseModel> getCoins() {
         return subscribe(vendingApi.getCoins());
     }
 
-    private <T> Single<T> subscribe(Single<T> single) {
-        return single.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+    private <T> Flowable<T> subscribe(Flowable<T> flowable) {
+        return flowable.subscribeOn(Schedulers.io());
     }
 }

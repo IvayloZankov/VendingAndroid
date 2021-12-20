@@ -63,8 +63,8 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         public ProductHolder(View view, ProductListener pListener) {
             super(view);
             mView = view;
-            mName = (TextView) view.findViewById(R.id.product_name_new);
-            mPrice = (TextView) view.findViewById(R.id.product_price_new);
+            mName = view.findViewById(R.id.product_name_new);
+            mPrice = view.findViewById(R.id.product_price_new);
             this.pListener = pListener;
             mView.setOnClickListener(this);
         }

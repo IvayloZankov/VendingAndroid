@@ -3,53 +3,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/ProductsFragment">
+    app:startDestination="@id/productsFragment">
 
     <fragment
-        android:id="@+id/ProductsFragment"
+        android:id="@+id/productsFragment"
         android:name="com.example.vending.user.ProductsFragment"
         android:label="@string/products_fragment_label"
         tools:layout="@layout/fragment_products">
 
         <action
-            android:id="@+id/action_ProductsFragment_to_CoinsFragment"
+            android:id="@+id/action_insert_coins"
             app:enterAnim="@anim/slide_in_up"
             app:exitAnim="@anim/fade_out"
-            app:destination="@id/CoinsFragment" />
+            app:destination="@id/coinsFragment" />
         <action
-            android:id="@+id/action_MaintenanceFragment"
+            android:id="@+id/action_maintenance"
             app:enterAnim="@anim/fade_in"
             app:exitAnim="@anim/fade_out"
             app:destination="@id/MaintenanceFragment" />
     </fragment>
     <fragment
-        android:id="@+id/CoinsFragment"
+        android:id="@+id/coinsFragment"
         android:name="com.example.vending.user.CoinsFragment"
         android:label="@string/coins_fragment_label"
         tools:layout="@layout/fragment_coins">
-
         <action
-            android:id="@+id/action_CoinsFragment_to_ProductsFragment"
+            android:id="@+id/action_products"
             app:enterAnim="@anim/fade_in"
             app:exitAnim="@anim/slide_out_down"
-            app:destination="@id/ProductsFragment" />
-        <action
-            android:id="@+id/action_MaintenanceFragment"
-            app:enterAnim="@anim/fade_in"
-            app:exitAnim="@anim/fade_out"
-            app:destination="@id/MaintenanceFragment" />
+            app:destination="@id/productsFragment" />
     </fragment>
     <fragment
         android:id="@+id/MaintenanceFragment"
         android:name="com.example.vending.maintenance.MaintenanceFragment"
         android:label="@string/maintenance_fragment_label"
         tools:layout="@layout/fragment_maintenance">
-
         <action
-            android:id="@+id/action_MaintenanceFragment_to_ProductsFragment"
+            android:id="@+id/action_products"
             app:enterAnim="@anim/fade_in"
             app:exitAnim="@anim/fade_out"
-            app:destination="@id/ProductsFragment" />
-
+            app:destination="@id/productsFragment" />
     </fragment>
 </navigation>
