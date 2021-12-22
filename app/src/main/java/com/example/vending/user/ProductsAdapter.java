@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.example.vending.R;
 import com.example.vending.server.ResponseModel;
+import com.example.vending.utils.SoundManager;
+import com.example.vending.utils.Utils;
 
 import java.util.List;
 import java.util.Locale;
@@ -76,8 +78,10 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         }
 
         @Override
-        public void onClick(View v) {
-            pListener.onProductClick(getAbsoluteAdapterPosition(), v);
+        public void onClick(View view) {
+            SoundManager.getInstance().playClick();
+            Utils.animateClick(view);
+            pListener.onProductClick(getAbsoluteAdapterPosition(), view);
         }
     }
 }

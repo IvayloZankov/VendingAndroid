@@ -65,8 +65,9 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
         }
 
         @Override
-        public void onClick(View v) {
-            cListener.onCoinClick(getAbsoluteAdapterPosition(), v);
+        public void onClick(View view) {
+
+            cListener.onCoinClick(getAbsoluteAdapterPosition(), view);
         }
     }
 }

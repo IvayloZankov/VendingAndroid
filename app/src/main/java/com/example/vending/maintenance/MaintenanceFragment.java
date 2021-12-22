@@ -22,6 +22,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
+import com.example.vending.utils.SoundManager;
 import com.example.vending.utils.Utils;
 import com.example.vending.VendingViewModel;
 
@@ -91,7 +92,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
                 return;
             }
             mLastClickTime = SystemClock.elapsedRealtime();
-            Utils.playSound(getContext(), R.raw.click_default);
+            SoundManager.getInstance().playClick();
             Utils.animateClick(v);
             showQuitAlert();
         });
@@ -109,7 +110,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        Utils.playSound(getContext(), R.raw.click_default);
+        SoundManager.getInstance().playClick();
         Utils.animateClick(optionsList.getChildAt(position));
         if (mOptions.get(position) == MaintenanceOption.RESET_PRODUCTS) {
             initResetProductsAlert();
@@ -123,7 +124,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
         alertDialogBuilder.setTitle(R.string.alert_maintenance_reset_coins);
         alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
         alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, (dialog, which) -> {
-            Utils.playSound(getContext(), R.raw.click_default);
+            SoundManager.getInstance().playClick();
             mViewModel.makeCoinsRequest().observe(getViewLifecycleOwner(), responseModel -> {
                 if (responseModel.getError() == null) {
                     mViewModel.updateLiveDataCoins(responseModel.getItems());
@@ -135,7 +136,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
             });
         });
         alertDialogBuilder.setNegativeButton(R.string.alert_cancel,
-                (dialog, which) -> Utils.playSound(getContext(), R.raw.click_default));
+                (dialog, which) -> SoundManager.getInstance().playClick());
         alertDialogBuilder.setCancelable(false);
         alertAreYouSure = alertDialogBuilder.create();
         alertAreYouSure.show();
@@ -149,7 +150,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
         alertDialogBuilder.setTitle(R.string.alert_maintenance_reset_products);
         alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
         alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, (dialog, which) -> {
-            Utils.playSound(getContext(), R.raw.click_default);
+            SoundManager.getInstance().playClick();
             mViewModel.makeProductsRequest().observe(getViewLifecycleOwner(), responseModel -> {
                 if (responseModel.getError() == null) {
                     mViewModel.updateLiveDataProducts(responseModel.getItems());
@@ -161,7 +162,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
             });
         });
         alertDialogBuilder.setNegativeButton(R.string.alert_cancel,
-                (dialog, which) -> Utils.playSound(getContext(), R.raw.click_default));
+                (dialog, which) -> SoundManager.getInstance().playClick());
         alertDialogBuilder.setCancelable(false);
         alertAreYouSure = alertDialogBuilder.create();
         alertAreYouSure.show();
@@ -175,11 +176,11 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
         alertDialogBuilder.setTitle(R.string.alert_quit_maintenance_title);
         alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
         alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, (dialog, which) -> {
-            Utils.playSound(getContext(), R.raw.click_default);
+            SoundManager.getInstance().playClick();
             NavHostFragment.findNavController(MaintenanceFragment.this)
                     .navigate(R.id.action_products);
         });
-        alertDialogBuilder.setNegativeButton(R.string.alert_cancel, (dialog, which) -> Utils.playSound(getContext(), R.raw.click_default));
+        alertDialogBuilder.setNegativeButton(R.string.alert_cancel, (dialog, which) -> SoundManager.getInstance().playClick());
         alertDialogBuilder.setCancelable(false);
         alertAreYouSure = alertDialogBuilder.create();
         alertAreYouSure.show();

@@ -21,6 +21,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
+import com.example.vending.utils.SoundManager;
 import com.example.vending.utils.Utils;
 import com.example.vending.VendingViewModel;
 import com.example.vending.server.ResponseModel;
@@ -132,12 +133,12 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
     }
 
     private void showOutOfOrderAlert() {
-        Utils.playSound(getContext(), R.raw.out_of_order);
+        SoundManager.getInstance().playError();
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setTitle(R.string.alert_title_out_of_order);
         alertDialogBuilder.setMessage(R.string.alert_text_enter_maintenance);
         alertDialogBuilder.setPositiveButton(R.string.alert_out_of_order_reset, (dialog, which) -> {
-                Utils.playSound(getContext(), R.raw.click_default);
+            SoundManager.getInstance().playClick();
             Fragment parentFragment = getParentFragment();
             if (parentFragment != null)
             NavHostFragment.findNavController(parentFragment)
@@ -157,8 +158,6 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         mLastClickTime = SystemClock.elapsedRealtime();
         View viewButton = v.findViewById(R.id.product_button);
         if (mListProducts.get(position).getQuantity() > 0) {
-            Utils.playSound(getContext(), R.raw.click_default);
-            Utils.animateClick(viewButton);
             viewButton.setBackgroundResource(R.drawable.button_round_background_pressed);
             ResponseModel.Item itemData = mListProducts.get(position);
             Bundle bundle = new Bundle();
@@ -167,9 +166,6 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
             bundle.putInt(getString(R.string.item_position_key), position);
             NavHostFragment.findNavController(ProductsFragment.this)
                     .navigate(R.id.action_insert_coins, bundle);
-        } else {
-            Utils.playSound(getContext(), R.raw.click_default);
-            Utils.animateClick(viewButton);
         }
     }
 

@@ -22,10 +22,4 @@ public class Utils {
         view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).withEndAction(
                 () -> view.animate().scaleX(1).scaleY(1).setDuration(100));
     }
-
-    public static void playSound(Context context, int resID) {
-        MediaPlayer mp = MediaPlayer.create(context, resID);
-        mp.start();
-        mp.setOnCompletionListener(MediaPlayer::release);
-    }
 }

@@ -24,6 +24,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
+import com.example.vending.utils.SoundManager;
 import com.example.vending.utils.Utils;
 import com.example.vending.VendingViewModel;
 import com.example.vending.server.ResponseModel;
@@ -133,7 +134,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
                 return;
             }
             mLastClickTime = SystemClock.elapsedRealtime();
-            Utils.playSound(getContext(), R.raw.click_default);
+            SoundManager.getInstance().playClick();
             Utils.animateClick(viewButtonCancel);
             isOrderCanceled = true;
             showGetCoinsAlert(mViewModel.getUserCoins(), true);
@@ -165,7 +166,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
             alertDialogBuilder.setView(layout);
         }
         alertDialogBuilder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-            Utils.playSound(getContext(), R.raw.click_default);
+            SoundManager.getInstance().playClick();
             mViewModel.resetUserCoins();
             NavHostFragment.findNavController(CoinsFragment.this)
                     .navigate(R.id.action_products);
@@ -196,7 +197,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-        Utils.playSound(getContext(), R.raw.click_coin);
+        SoundManager.getInstance().playCoin();
         Utils.animateClick(v);
         mViewModel.updateInsertedAmount(mListCoinsMachine.get(position));
     }

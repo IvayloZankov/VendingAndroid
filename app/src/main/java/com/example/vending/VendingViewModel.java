@@ -1,7 +1,6 @@
 package com.example.vending;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -136,7 +135,6 @@ public class VendingViewModel extends AndroidViewModel {
 
     @Override
     protected void onCleared() {
-        Log.e(TAG, "onCleared");
         mBag.clear();
         super.onCleared();
     }

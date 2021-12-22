@@ -12,6 +12,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.vending.utils.SoundManager;
 import com.example.vending.utils.Utils;
 
 public class VendingActivity extends AppCompatActivity {
@@ -27,6 +28,7 @@ public class VendingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        SoundManager.getInstance().loadSounds(this);
     }
 
     @Override
@@ -39,7 +41,7 @@ public class VendingActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_maintenance) {
-            Utils.playSound(this, R.raw.click_default);
+            SoundManager.getInstance().playClick();
             Fragment primaryNavigationFragment = getSupportFragmentManager().getPrimaryNavigationFragment();
             if (primaryNavigationFragment != null)
             NavHostFragment.findNavController(primaryNavigationFragment)
@@ -55,5 +57,11 @@ public class VendingActivity extends AppCompatActivity {
         loadingDialog.setIndeterminate(false);
         loadingDialog.setCancelable(false);
         loadingDialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        SoundManager.getInstance().cleanUp();
+        super.onDestroy();
     }
 }
