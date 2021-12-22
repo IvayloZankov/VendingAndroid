@@ -73,6 +73,11 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         initProductViews(view);
         initRecyclerView(view);
         initCancelButton(view);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         checkOrderCancelled();
     }
 

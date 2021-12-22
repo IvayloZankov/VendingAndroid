@@ -67,6 +67,11 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
         iniViewModel();
         initRecyclerView(view);
         initExitButton(view);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         checkForAlert();
     }
 
