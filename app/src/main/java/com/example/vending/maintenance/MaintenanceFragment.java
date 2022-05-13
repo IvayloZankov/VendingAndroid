@@ -12,16 +12,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
+import com.example.vending.base.BaseFragment;
 import com.example.vending.utils.SoundManager;
 import com.example.vending.utils.Utils;
 import com.example.vending.VendingViewModel;
@@ -32,11 +31,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MaintenanceFragment extends Fragment implements OptionsRecyclerViewAdapter.OptionListener {
+public class MaintenanceFragment extends BaseFragment<VendingViewModel> implements OptionsRecyclerViewAdapter.OptionListener {
 
     public static final String TAG = MaintenanceFragment.class.getSimpleName();
 
-    private VendingViewModel mViewModel;
     private RecyclerView optionsList;
     private final List<MaintenanceOption> mOptions = new ArrayList<>(Arrays.asList(MaintenanceOption.values()));
     private long mLastClickTime = 0;
@@ -51,6 +49,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
             isResetCoinsShown = savedInstanceState.getBoolean(IS_RESET_COINS);
             isQuitShown = savedInstanceState.getBoolean(IS_QUIT);
         }
+        initViewModel();
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_maintenance, container, false);
     }
@@ -65,7 +64,6 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         handleBackButton();
-        iniViewModel();
         initRecyclerView(view);
         initExitButton(view);
     }
@@ -82,7 +80,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
         if (isQuitShown) showQuitAlert();
     }
 
-    private void iniViewModel() {
+    private void initViewModel() {
         mViewModel = new ViewModelProvider(requireActivity()).get(VendingViewModel.class);
     }
 
@@ -125,15 +123,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
         alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
         alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, (dialog, which) -> {
             SoundManager.getInstance().playClick();
-            mViewModel.makeCoinsRequest().observe(getViewLifecycleOwner(), responseModel -> {
-                if (responseModel.getError() == null) {
-                    mViewModel.updateLiveDataCoins(responseModel.getItems());
-                    Toast.makeText(getContext(), getString(R.string.maintenance_coins_reset), Toast.LENGTH_LONG).show();
-                } else {
-                    responseModel.getError().printStackTrace();
-                    showServerError();
-                }
-            });
+            mViewModel.initResetCoinsRequest();
         });
         alertDialogBuilder.setNegativeButton(R.string.alert_cancel,
                 (dialog, which) -> SoundManager.getInstance().playClick());
@@ -151,15 +141,7 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
         alertDialogBuilder.setMessage(R.string.alert_quit_maintenance_text);
         alertDialogBuilder.setPositiveButton(R.string.alert_quit_maintenance_ok, (dialog, which) -> {
             SoundManager.getInstance().playClick();
-            mViewModel.makeProductsRequest().observe(getViewLifecycleOwner(), responseModel -> {
-                if (responseModel.getError() == null) {
-                    mViewModel.updateLiveDataProducts(responseModel.getItems());
-                    Toast.makeText(getContext(), getString(R.string.maintenance_products_reset), Toast.LENGTH_LONG).show();
-                } else {
-                    responseModel.getError().printStackTrace();
-                    showServerError();
-                }
-            });
+            mViewModel.initResetProductsRequest();
         });
         alertDialogBuilder.setNegativeButton(R.string.alert_cancel,
                 (dialog, which) -> SoundManager.getInstance().playClick());
@@ -187,13 +169,6 @@ public class MaintenanceFragment extends Fragment implements OptionsRecyclerView
         isQuitShown = true;
         isResetProductsShown = false;
         isResetCoinsShown = false;
-    }
-
-    private void showServerError() {
-        if (alertNoConn == null || !alertNoConn.isShowing()) {
-            alertNoConn = Utils.buildNoInternetDialog(getContext());
-            alertNoConn.show();
-        }
     }
 
     @Override

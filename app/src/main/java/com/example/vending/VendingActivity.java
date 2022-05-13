@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.vending.utils.SoundManager;
-import com.example.vending.utils.Utils;
 
 public class VendingActivity extends AppCompatActivity {
 

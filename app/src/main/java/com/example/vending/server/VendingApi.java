@@ -1,39 +1,40 @@
 package com.example.vending.server;
 
+import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Flowable;
 import io.reactivex.Single;
-import okhttp3.ResponseBody;
+import retrofit2.http.Body;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
-import retrofit2.http.Url;
 
 public interface VendingApi {
 
-    String PRODUCTS_URL = "products.txt";
-    String COINS_URL = "coins.txt";
+    String GET_PRODUCTS = "getProducts";
+    String DECREASE_PRODUCT = "decreaseProduct";
+    String RESET_PRODUCTS = "resetProducts";
+    String GET_COINS = "getCoins";
+    String RESET_COINS = "resetCoins";
+    String UPDATE_COINS = "updateCoins";
 
-    @GET(PRODUCTS_URL)
-    Flowable<ResponseModel> getProducts();
+    @GET(GET_PRODUCTS)
+    Single<ResponseModel> getProducts();
 
-    @GET(COINS_URL)
-    Flowable<ResponseModel> getCoins();
-
-    @POST
-    Single<ResponseBody> post(
-            @Url String url,
-            @HeaderMap Map<String, String> headers
-    );
-
-    @POST
     @FormUrlEncoded
-    Single<ResponseBody> postParams(
-            @Url String url,
-            @HeaderMap Map<String, String> headers,
-            @FieldMap Map<String, String> params
-    );
+    @POST(DECREASE_PRODUCT)
+    Single<ResponseModel> decreaseProducts(@FieldMap Map<String, String> params);
+
+    @GET(RESET_PRODUCTS)
+    Single<ResponseModel> resetProducts();
+
+    @GET(GET_COINS)
+    Single<ResponseModel> getCoins();
+
+    @POST(UPDATE_COINS)
+    Single<ResponseModel> updateCoins(@Body List<ResponseModel.Item> list);
+
+    @GET(RESET_COINS)
+    Single<ResponseModel> resetCoins();
 }

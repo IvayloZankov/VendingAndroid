@@ -18,12 +18,12 @@ import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
+import com.example.vending.base.BaseFragment;
 import com.example.vending.utils.SoundManager;
 import com.example.vending.utils.Utils;
 import com.example.vending.VendingViewModel;
@@ -35,14 +35,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener {
+public class CoinsFragment extends BaseFragment<VendingViewModel> implements CoinsAdapter.CoinListener {
 
     private static final String TAG = CoinsFragment.class.getSimpleName();
 
     private TextView mViewCoinsAmount;
     private String mSelectedProductPrice;
     private CoinsAdapter mAdapter;
-    private VendingViewModel mViewModel;
     private List<ResponseModel.Item> mListCoinsMachine;
     private ResponseModel.Item mSelectedProduct;
     boolean isClickable, isProductTaken, isOrderCanceled;
@@ -57,6 +56,7 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
         }
         isClickable = true;
         setHasOptionsMenu(true);
+        initViewModel();
         return inflater.inflate(R.layout.fragment_coins, container, false);
     }
 
@@ -69,7 +69,6 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         handleBackButton();
-        initViewModel();
         initCoinsAmount(view);
         initProductViews(view);
         initRecyclerView(view);
@@ -207,9 +206,10 @@ public class CoinsFragment extends Fragment implements CoinsAdapter.CoinListener
             isProductTaken = true;
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         mViewModel.addUserCoinsToMachine();
-                        mViewModel.removeProduct();
+                        mViewModel.initRemoveProductRequest();
                         mViewModel.prepareReturningCoins();
                         showGetCoinsAlert(mViewModel.getCoinsForReturn(), false);
+                        mViewModel.initUpdateCoinsRequest();
                     }, 300);
         } else showGetCoinsAlert(mViewModel.getCoinsForReturn(), false);
     }

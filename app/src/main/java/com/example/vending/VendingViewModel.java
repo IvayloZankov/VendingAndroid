@@ -1,25 +1,23 @@
 package com.example.vending;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.vending.base.BaseViewModel;
 import com.example.vending.server.ResponseModel;
-import com.example.vending.server.VendingClient;
 import com.example.vending.utils.CoinsCounter;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import io.reactivex.disposables.CompositeDisposable;
-
-public class VendingViewModel extends AndroidViewModel {
+public class VendingViewModel extends BaseViewModel {
     private static final String TAG = VendingViewModel.class.getSimpleName();
 
     private final MutableLiveData<List<ResponseModel.Item>> mLiveDataProducts = new MutableLiveData<>();
@@ -29,11 +27,7 @@ public class VendingViewModel extends AndroidViewModel {
     private List<ResponseModel.Item> mListCoinsForReturn;
 
     private final CoinsCounter mCoinsCounter = new CoinsCounter();
-    private final VendingClient mClient = new VendingClient();
-    private final CompositeDisposable mBag = new CompositeDisposable();
     private int selectedProduct;
-    private boolean areProductsLoaded;
-    private boolean areCoinsLoaded;
 
     public VendingViewModel(@NonNull Application application) {
         super(application);
@@ -49,24 +43,57 @@ public class VendingViewModel extends AndroidViewModel {
         return mLiveDataCoins;
     }
 
-    public void updateLiveDataProducts(List<ResponseModel.Item> list) {
-        mLiveDataProducts.postValue(list);
+    public void initProductsRequest() {
+        mClient.getProducts().subscribe(new VendingObserver<ResponseModel>() {
+            @Override
+            public void onSuccess(@NonNull ResponseModel responseModel) {
+                super.onSuccess(responseModel);
+                handleResponse(responseModel, response ->
+                    mLiveDataProducts.setValue(responseModel.getItems()));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                super.onError(e);
+            }
+        });
     }
 
-    public void updateLiveDataCoins(List<ResponseModel.Item> list) {
-        mLiveDataCoins.postValue(list);
+    public void initCoinsRequest() {
+        mClient.getCoins().subscribe(new VendingObserver<ResponseModel>() {
+            @Override
+            public void onSuccess(@NonNull ResponseModel responseModel) {
+                handleResponse(responseModel, response ->
+                    mLiveDataCoins.setValue(responseModel.getItems()));
+                Log.e(TAG, String.valueOf(responseModel.getItems()));
+            }
+        });
     }
 
-    public LiveData<ResponseModel> makeProductsRequest() {
-        return LiveDataReactiveStreams.fromPublisher(
-                mClient.getProducts().onErrorReturn(ResponseModel::new)
-        );
+    public void initUpdateCoinsRequest() {
+        mClient.updateCoins(mLiveDataCoins.getValue()).subscribe(new VendingObserver<ResponseModel>() {});
     }
 
-    public LiveData<ResponseModel> makeCoinsRequest() {
-        return LiveDataReactiveStreams.fromPublisher(
-                mClient.getCoins().onErrorReturn(ResponseModel::new)
-        );
+    public void initResetCoinsRequest() {
+        mClient.resetCoins().subscribe(new VendingObserver<ResponseModel>() {});
+    }
+
+    public void initRemoveProductRequest() {
+        HashMap<String, String> params = new HashMap<String, String>(){{
+            put("id", String.valueOf(selectedProduct));
+        }};
+        Log.e(TAG, String.valueOf(params));
+        mClient.decreaseProducts(params).subscribe(new VendingObserver<ResponseModel>() {
+            @Override
+            public void onSuccess(@NonNull ResponseModel responseModel) {
+                handleResponse(responseModel, response ->
+                    mLiveDataProducts.setValue(responseModel.getItems()));
+            }
+        });
+    }
+
+    public void initResetProductsRequest() {
+        mClient.resetProducts().subscribe(new VendingObserver<ResponseModel>() {});
     }
 
     public ResponseModel.Item getSelectedProduct() {
@@ -88,16 +115,11 @@ public class VendingViewModel extends AndroidViewModel {
         mCoinsCounter.insertCoin(item, mListCoinsUser);
     }
 
-    public void removeProduct() {
-        List<ResponseModel.Item> value = mLiveDataProducts.getValue();
-        if (value != null) value.get(selectedProduct).decreaseQuantity();
-    }
-
     public void addUserCoinsToMachine() {
         List<ResponseModel.Item> listCoins = mLiveDataCoins.getValue();
         mCoinsCounter.addCoinsToStorage(mListCoinsUser, listCoins);
         mListCoinsUser = new ArrayList<>();
-        mLiveDataCoins.postValue(listCoins);
+        mLiveDataCoins.setValue(listCoins);
     }
 
     public List<ResponseModel.Item> getUserCoins() {
@@ -114,28 +136,10 @@ public class VendingViewModel extends AndroidViewModel {
         List<ResponseModel.Item> listCoins = mLiveDataCoins.getValue();
         String productPrice = String.format(Locale.CANADA, "%.2f", getSelectedProduct().getPrice());
         mListCoinsForReturn = mCoinsCounter.getReturningCoins(mLiveDataInsertedAmount.getValue(), productPrice, listCoins);
-        mLiveDataCoins.postValue(listCoins);
+        mLiveDataCoins.setValue(listCoins);
     }
 
     public List<ResponseModel.Item> getCoinsForReturn() {
         return mListCoinsForReturn;
-    }
-
-    public void setProductsLoaded(boolean areProductsLoaded) {
-        this.areProductsLoaded = areProductsLoaded;
-    }
-
-    public void setCoinsLoaded(boolean areCoinsLoaded) {
-        this.areCoinsLoaded = areCoinsLoaded;
-    }
-
-    public boolean isDataFetched() {
-        return areProductsLoaded && areCoinsLoaded;
-    }
-
-    @Override
-    protected void onCleared() {
-        mBag.clear();
-        super.onCleared();
     }
 }

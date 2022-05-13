@@ -9,11 +9,11 @@ import com.example.vending.R;
 
 public class Utils {
 
-    public static AlertDialog buildNoInternetDialog(Context context) {
+    public static AlertDialog buildNoInternetDialog(Context context, String title, String message) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        alertDialogBuilder.setTitle(R.string.no_internet);
-        alertDialogBuilder.setMessage(R.string.check_connection);
-        alertDialogBuilder.setPositiveButton(android.R.string.yes, (dialog, which) -> dialog.cancel());
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setMessage(message);
+        alertDialogBuilder.setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.cancel());
         alertDialogBuilder.setCancelable(false);
         return alertDialogBuilder.create();
     }

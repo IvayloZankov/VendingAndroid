@@ -30,7 +30,7 @@ public class CoinsCounter {
             }
         }
         if (!isPresent) {
-            storage.add(storage.size(), new ResponseModel.Item(selectedCoinName, selectedCoinValue, 1));
+            storage.add(storage.size(), new ResponseModel.Item(storage.size(), selectedCoinName, selectedCoinValue, 1));
         }
     }
 

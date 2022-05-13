@@ -60,7 +60,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         public final TextView mPrice;
         public ResponseModel.Item mItem;
 
-        ProductListener pListener;
+        public final ProductListener pListener;
 
         public ProductHolder(View view, ProductListener pListener) {
             super(view);
@@ -80,7 +80,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         @Override
         public void onClick(View view) {
             SoundManager.getInstance().playClick();
-            Utils.animateClick(view);
+//            Utils.animateClick(view);
             pListener.onProductClick(getAbsoluteAdapterPosition(), view);
         }
     }
