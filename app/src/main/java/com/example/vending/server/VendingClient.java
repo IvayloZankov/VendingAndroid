@@ -1,5 +1,7 @@
 package com.example.vending.server;
 
+import com.example.vending.server.response.ResponseModel;
+
 import java.util.HashMap;
 import java.util.List;
 

@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.vending.R;
 import com.example.vending.server.ResponseEvent;
-import com.example.vending.server.ResponseModel;
+import com.example.vending.server.response.ResponseModel;
 import com.example.vending.utils.Utils;
 
 import java.net.ConnectException;
@@ -32,6 +32,7 @@ public class BaseFragment<T extends BaseViewModel> extends Fragment {
             Throwable throwable = throwableEvent.getResponseIfNotHandled();
             if (throwable != null) {
                 if (throwable instanceof ConnectException) {
+                    mViewModel.setNoConnection(true);
                     showErrorAlert(getString(R.string.no_internet), getString(R.string.check_connection));
                 } else {
                     showErrorAlert(getString(R.string.error), throwable.getMessage());

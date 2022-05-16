@@ -9,21 +9,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.vending.R;
-import com.example.vending.server.ResponseModel;
+import com.example.vending.server.response.ResponseModel;
 import com.example.vending.utils.SoundManager;
-import com.example.vending.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductHolder> {
 
-    private final List<ResponseModel.Item> mProducts;
-    private final ProductListener pListener;
+    private List<ResponseModel.Item> mProducts = new ArrayList<>();
+    private final ProductClickListener mClickListener;
 
-    public ProductsAdapter(List<ResponseModel.Item> products, ProductListener pListener) {
-        this.mProducts = products;
-        this.pListener = pListener;
+    public ProductsAdapter(ProductClickListener clickListener) {
+        this.mClickListener = clickListener;
     }
 
     @NonNull
@@ -31,7 +30,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
     public ProductHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_product, parent, false);
-        return new ProductHolder(view, pListener);
+        return new ProductHolder(view, mClickListener);
     }
 
     @Override
@@ -50,7 +49,12 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         return mProducts.size();
     }
 
-    public interface ProductListener {
+    public void setProducts(List<ResponseModel.Item> products) {
+        mProducts = products;
+        notifyDataSetChanged();
+    }
+
+    public interface ProductClickListener {
         void onProductClick(int position, View v);
     }
 
@@ -60,9 +64,9 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         public final TextView mPrice;
         public ResponseModel.Item mItem;
 
-        public final ProductListener pListener;
+        public final ProductClickListener pListener;
 
-        public ProductHolder(View view, ProductListener pListener) {
+        public ProductHolder(View view, ProductClickListener pListener) {
             super(view);
             mView = view;
             mName = view.findViewById(R.id.product_name_new);

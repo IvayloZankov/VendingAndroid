@@ -1,6 +1,5 @@
 package com.example.vending;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,9 +15,8 @@ import com.example.vending.utils.SoundManager;
 
 public class VendingActivity extends AppCompatActivity {
 
+    @SuppressWarnings("unused")
     private static final String TAG = VendingActivity.class.getSimpleName();
-
-    private ProgressDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +46,6 @@ public class VendingActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void initLoadingDialog() {
-        loadingDialog = new ProgressDialog(VendingActivity.this);
-        loadingDialog.setMessage(getResources().getString(R.string.loading_products));
-        loadingDialog.setIndeterminate(false);
-        loadingDialog.setCancelable(false);
-        loadingDialog.show();
     }
 
     @Override

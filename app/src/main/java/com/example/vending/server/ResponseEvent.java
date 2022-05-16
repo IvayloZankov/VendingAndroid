@@ -27,6 +27,7 @@ public class ResponseEvent<T> {
         }
     }
 
+    @SuppressWarnings("unused")
     public boolean hasBeenHandled() {
         return hasBeenHandled;
     }

@@ -2,10 +2,7 @@ package com.example.vending.utils;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.view.View;
-
-import com.example.vending.R;
 
 public class Utils {
 

@@ -27,22 +27,21 @@ import com.example.vending.base.BaseFragment;
 import com.example.vending.utils.SoundManager;
 import com.example.vending.utils.Utils;
 import com.example.vending.VendingViewModel;
-import com.example.vending.server.ResponseModel;
+import com.example.vending.server.response.ResponseModel;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class CoinsFragment extends BaseFragment<VendingViewModel> implements CoinsAdapter.CoinListener {
 
+    @SuppressWarnings("unused")
     private static final String TAG = CoinsFragment.class.getSimpleName();
 
     private TextView mViewCoinsAmount;
     private String mSelectedProductPrice;
     private CoinsAdapter mAdapter;
-    private List<ResponseModel.Item> mListCoinsMachine;
     private ResponseModel.Item mSelectedProduct;
     boolean isClickable, isProductTaken, isOrderCanceled;
     private long mLastClickTime = 0;
@@ -78,10 +77,10 @@ public class CoinsFragment extends BaseFragment<VendingViewModel> implements Coi
     @Override
     public void onResume() {
         super.onResume();
-        checkOrderCancelled();
+        checkForAlert();
     }
 
-    private void checkOrderCancelled() {
+    private void checkForAlert() {
         if (isOrderCanceled) {
             showGetCoinsAlert(mViewModel.getUserCoins(), true);
         }
@@ -89,12 +88,8 @@ public class CoinsFragment extends BaseFragment<VendingViewModel> implements Coi
 
     private void initViewModel() {
         mViewModel = new ViewModelProvider(requireActivity()).get(VendingViewModel.class);
-        mViewModel.getLiveDataCoins().observe(getViewLifecycleOwner(), items -> {
-            mListCoinsMachine.clear();
-            mListCoinsMachine.addAll(items);
-            mAdapter.notifyDataSetChanged();
-//            Log.e(TAG, items.toString());
-        });
+        mViewModel.getLiveDataCoins().observe(getViewLifecycleOwner(), items ->
+            mAdapter.setCoins(items));
         mViewModel.getInsertedAmount().observe(getViewLifecycleOwner(), amount -> {
             mViewCoinsAmount.setText(amount);
             if (Double.parseDouble(amount) >= Double.parseDouble(mSelectedProductPrice)) {
@@ -120,9 +115,8 @@ public class CoinsFragment extends BaseFragment<VendingViewModel> implements Coi
     }
 
     private void initRecyclerView(View view) {
-        mListCoinsMachine = new ArrayList<>();
         RecyclerView coinsListRecycler = view.findViewById(R.id.recyclerCoins);
-        mAdapter = new CoinsAdapter(mListCoinsMachine, this);
+        mAdapter = new CoinsAdapter(this);
         coinsListRecycler.setAdapter(mAdapter);
     }
 
@@ -198,7 +192,7 @@ public class CoinsFragment extends BaseFragment<VendingViewModel> implements Coi
         mLastClickTime = SystemClock.elapsedRealtime();
         SoundManager.getInstance().playCoin();
         Utils.animateClick(v);
-        mViewModel.updateInsertedAmount(mListCoinsMachine.get(position));
+        mViewModel.updateInsertedAmount(position);
     }
 
     private void addUserCoinsAndReturnChange() {

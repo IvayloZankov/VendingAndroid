@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.vending.base.BaseViewModel;
-import com.example.vending.server.ResponseModel;
+import com.example.vending.server.response.ResponseModel;
 import com.example.vending.utils.CoinsCounter;
 
 import java.math.BigDecimal;
@@ -18,11 +18,14 @@ import java.util.List;
 import java.util.Locale;
 
 public class VendingViewModel extends BaseViewModel {
+
+    @SuppressWarnings("unused")
     private static final String TAG = VendingViewModel.class.getSimpleName();
 
     private final MutableLiveData<List<ResponseModel.Item>> mLiveDataProducts = new MutableLiveData<>();
     private final MutableLiveData<List<ResponseModel.Item>> mLiveDataCoins = new MutableLiveData<>();
     private final MutableLiveData<String> mLiveDataInsertedAmount = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> mLiveDataOutOfOrderAlert = new MutableLiveData<>();
     private List<ResponseModel.Item> mListCoinsUser;
     private List<ResponseModel.Item> mListCoinsForReturn;
 
@@ -43,6 +46,10 @@ public class VendingViewModel extends BaseViewModel {
         return mLiveDataCoins;
     }
 
+    public LiveData<Boolean> getLiveDataOutOfOrderAlert() {
+        return mLiveDataOutOfOrderAlert;
+    }
+
     public void initProductsRequest() {
         mClient.getProducts().subscribe(new VendingObserver<ResponseModel>() {
             @Override
@@ -50,11 +57,7 @@ public class VendingViewModel extends BaseViewModel {
                 super.onSuccess(responseModel);
                 handleResponse(responseModel, response ->
                     mLiveDataProducts.setValue(responseModel.getItems()));
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                super.onError(e);
+                Log.e(TAG, String.valueOf(responseModel.getItems()));
             }
         });
     }
@@ -75,7 +78,13 @@ public class VendingViewModel extends BaseViewModel {
     }
 
     public void initResetCoinsRequest() {
-        mClient.resetCoins().subscribe(new VendingObserver<ResponseModel>() {});
+        mClient.resetCoins().subscribe(new VendingObserver<ResponseModel>() {
+            @Override
+            public void onSuccess(@NonNull ResponseModel responseModel) {
+                handleResponse(responseModel, response ->
+                    mLiveDataCoins.setValue(responseModel.getItems()));
+            }
+        });
     }
 
     public void initRemoveProductRequest() {
@@ -93,7 +102,13 @@ public class VendingViewModel extends BaseViewModel {
     }
 
     public void initResetProductsRequest() {
-        mClient.resetProducts().subscribe(new VendingObserver<ResponseModel>() {});
+        mClient.resetProducts().subscribe(new VendingObserver<ResponseModel>() {
+            @Override
+            public void onSuccess(@NonNull ResponseModel responseModel) {
+                handleResponse(responseModel, response ->
+                        mLiveDataProducts.setValue(responseModel.getItems()));
+            }
+        });
     }
 
     public ResponseModel.Item getSelectedProduct() {
@@ -108,11 +123,15 @@ public class VendingViewModel extends BaseViewModel {
         return mLiveDataInsertedAmount;
     }
 
-    public void updateInsertedAmount(ResponseModel.Item item) {
+    public void updateInsertedAmount(int position) {
         String value = mLiveDataInsertedAmount.getValue();
-        value = new BigDecimal(value).add(BigDecimal.valueOf(item.getPrice())).toString();
-        mLiveDataInsertedAmount.postValue(value);
-        mCoinsCounter.insertCoin(item, mListCoinsUser);
+        List<ResponseModel.Item> listCoins = mLiveDataCoins.getValue();
+        if (listCoins != null) {
+            ResponseModel.Item item = listCoins.get(position);
+            value = new BigDecimal(value).add(BigDecimal.valueOf(item.getPrice())).toString();
+            mLiveDataInsertedAmount.postValue(value);
+            mCoinsCounter.insertCoin(item, mListCoinsUser);
+        }
     }
 
     public void addUserCoinsToMachine() {
@@ -141,5 +160,24 @@ public class VendingViewModel extends BaseViewModel {
 
     public List<ResponseModel.Item> getCoinsForReturn() {
         return mListCoinsForReturn;
+    }
+
+    public boolean selectedProductHasQuantity() {
+        List<ResponseModel.Item> listProducts = mLiveDataProducts.getValue();
+        if (listProducts != null) {
+            ResponseModel.Item product = listProducts.get(selectedProduct);
+            return product.getQuantity() > 0;
+        }
+        return false;
+    }
+
+    public void checkIfCoinsToOperate() {
+        List<ResponseModel.Item> listCoins = mLiveDataCoins.getValue();
+        if (listCoins != null && listCoins.size() > 0) {
+            ResponseModel.Item item = listCoins.get(0);
+            if (item.getQuantity() < 40) {
+                mLiveDataOutOfOrderAlert.setValue(true);
+            } else mLiveDataOutOfOrderAlert.setValue(false);
+        } else mLiveDataOutOfOrderAlert.setValue(false);
     }
 }

@@ -9,19 +9,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vending.R;
-import com.example.vending.server.ResponseModel;
+import com.example.vending.server.response.ResponseModel;
 
 import java.util.List;
 import java.util.Locale;
 
 public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder> {
 
-    private final CoinListener cListener;
-    private final List<ResponseModel.Item> mCoins;
+    private final CoinListener mClickListener;
+    private List<ResponseModel.Item> mListCoins;
 
-    public CoinsAdapter(List<ResponseModel.Item> mCoins, CoinListener cListener) {
-        this.mCoins = mCoins;
-        this.cListener = cListener;
+    public CoinsAdapter(CoinListener clickListener) {
+        this.mClickListener = clickListener;
     }
 
     @NonNull
@@ -29,18 +28,23 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
     public CoinsHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_coin, parent, false);
-        return new CoinsHolder(view, cListener);
+        return new CoinsHolder(view, mClickListener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CoinsHolder holder, int position) {
-        holder.mItem = mCoins.get(position);
-        holder.mNominal.setText(String.format(Locale.CANADA, "%.2f", (mCoins.get(position).getPrice())));
+        holder.mItem = mListCoins.get(position);
+        holder.mNominal.setText(String.format(Locale.CANADA, "%.2f", (mListCoins.get(position).getPrice())));
     }
 
     @Override
     public int getItemCount() {
-        return mCoins.size();
+        return mListCoins.size();
+    }
+
+    public void setCoins(List<ResponseModel.Item> coins) {
+        mListCoins = coins;
+        notifyDataSetChanged();
     }
 
     public interface CoinListener {
@@ -66,7 +70,6 @@ public class CoinsAdapter extends RecyclerView.Adapter<CoinsAdapter.CoinsHolder>
 
         @Override
         public void onClick(View view) {
-
             cListener.onCoinClick(getAbsoluteAdapterPosition(), view);
         }
     }

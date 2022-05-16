@@ -33,6 +33,7 @@ import java.util.List;
 
 public class MaintenanceFragment extends BaseFragment<VendingViewModel> implements OptionsRecyclerViewAdapter.OptionListener {
 
+    @SuppressWarnings("unused")
     public static final String TAG = MaintenanceFragment.class.getSimpleName();
 
     private RecyclerView optionsList;

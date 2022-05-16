@@ -1,4 +1,4 @@
-package com.example.vending.server;
+package com.example.vending.server.response;
 
 import androidx.annotation.NonNull;
 
@@ -17,14 +17,14 @@ public class ResponseModel {
     @SerializedName("data")
     public List<Item> items = new ArrayList<>();
 
-    public final Throwable error;
-
-    public ResponseModel(Throwable error) {
-        this.error = error;
-    }
-
     public List<Item> getItems() {
         return items;
+    }
+
+    public ResponseModel(boolean success, String message, List<Item> items) {
+        this.success = success;
+        this.message = message;
+        this.items = items;
     }
 
     public static class Item {

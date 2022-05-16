@@ -10,8 +10,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.vending.server.ResponseEvent;
-import com.example.vending.server.ResponseModel;
+import com.example.vending.server.response.ResponseModel;
 import com.example.vending.server.VendingClient;
+
+import java.net.ConnectException;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.CompositeDisposable;
@@ -20,6 +22,7 @@ import io.reactivex.disposables.Disposable;
 public class BaseViewModel extends AndroidViewModel {
 
     protected MutableLiveData<ResponseEvent<Throwable>> mLiveDataOnError = new MutableLiveData<>();
+    protected MutableLiveData<Boolean> mLiveDataNoConnection = new MutableLiveData<>();
     protected MutableLiveData<ResponseEvent<ResponseModel>> mLiveDataServerError = new MutableLiveData<>();
     protected final MutableLiveData<Boolean> mLiveDataLoading = new MutableLiveData<>();
 
@@ -40,6 +43,14 @@ public class BaseViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> getLiveDataLoading() {
         return mLiveDataLoading;
+    }
+
+    public LiveData<Boolean> getLiveDataNoConnection() {
+        return mLiveDataNoConnection;
+    }
+
+    public void setNoConnection(boolean noConnection) {
+        mLiveDataNoConnection.setValue(noConnection);
     }
 
     /**
@@ -103,7 +114,11 @@ public class BaseViewModel extends AndroidViewModel {
         public void onError(Throwable e) {
             mLiveDataLoading.setValue(false);
             e.printStackTrace();
-            mLiveDataOnError.setValue(new ResponseEvent<>(e));
+            if (!(e instanceof ConnectException)) {
+                mLiveDataOnError.setValue(new ResponseEvent<>(e));
+            } else {
+                mLiveDataNoConnection.setValue(true);
+            }
         }
     }
 }

@@ -24,28 +24,22 @@ import com.example.vending.R;
 import com.example.vending.base.BaseFragment;
 import com.example.vending.utils.SoundManager;
 import com.example.vending.VendingViewModel;
-import com.example.vending.server.ResponseModel;
 
-import java.util.ArrayList;
-import java.util.List;
+public class ProductsFragment extends BaseFragment<VendingViewModel> implements ProductsAdapter.ProductClickListener {
 
-public class ProductsFragment extends BaseFragment<VendingViewModel> implements ProductsAdapter.ProductListener {
-
+    @SuppressWarnings("unused")
     private static final String TAG = ProductsFragment.class.getSimpleName();
 
     private long mLastClickTime = 0;
     boolean doubleBackToExitPressedOnce = false;
     private ProductsAdapter mAdapter;
-    private List<ResponseModel.Item> mListProducts;
-    private List<ResponseModel.Item> mListCoins;
     private AlertDialog alertOutOfOrder;
-    private ConstraintLayout layoutNoConnection;
-    private RecyclerView mProductsRecycler;
+    private ConstraintLayout mLayoutNoConnection;
+    private RecyclerView mRecyclerProducts;
     private ProgressBar mProgressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mListProducts = new ArrayList<>();
         initViewModel();
         return inflater.inflate(R.layout.fragment_products, container, false);
     }
@@ -55,8 +49,16 @@ public class ProductsFragment extends BaseFragment<VendingViewModel> implements 
         handleBackButton();
         initRecyclerView(view);
         initNoConnLayout(view);
-        mViewModel.initProductsRequest();
-        mViewModel.initCoinsRequest();
+        fetchDataFromServer();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mViewModel.getLiveDataOutOfOrderAlert().observe(getViewLifecycleOwner(), aBoolean -> {
+            if (aBoolean) showOutOfOrderAlert();
+            else hideOutOfOrderAlert();
+        });
     }
 
     private void initViewModel() {
@@ -64,52 +66,48 @@ public class ProductsFragment extends BaseFragment<VendingViewModel> implements 
         mViewModel.getLiveDataLoading().observe(getViewLifecycleOwner(), aBoolean -> {
             if (aBoolean) {
                 mProgressBar.setVisibility(View.VISIBLE);
-                mProductsRecycler.setVisibility(View.GONE);
+                mRecyclerProducts.setVisibility(View.GONE);
             } else {
                 mProgressBar.setVisibility(View.GONE);
-                mProductsRecycler.setVisibility(View.VISIBLE);
+                mRecyclerProducts.setVisibility(View.VISIBLE);
             }
         });
-        mViewModel.getLiveDataProducts().observe(getViewLifecycleOwner(), items -> {
-            mListProducts.clear();
-            mListProducts.addAll(items);
-            mAdapter.notifyDataSetChanged();
-        });
-        mViewModel.getLiveDataCoins().observe(getViewLifecycleOwner(), items -> {
-            mListCoins = items;
-            checkIfCoinsToOperate();
+        mViewModel.getLiveDataProducts().observe(getViewLifecycleOwner(), items ->
+            mAdapter.setProducts(items));
+        mViewModel.getLiveDataCoins().observe(getViewLifecycleOwner(), items ->
+            mViewModel.checkIfCoinsToOperate());
+        mViewModel.getLiveDataNoConnection().observe(getViewLifecycleOwner(), aBoolean -> {
+            if (aBoolean) {
+                mLayoutNoConnection.setVisibility(View.VISIBLE);
+                mRecyclerProducts.setVisibility(View.GONE);
+            }
+            else {
+                mLayoutNoConnection.setVisibility(View.GONE);
+                mRecyclerProducts.setVisibility(View.VISIBLE);
+            }
         });
     }
 
     private void initNoConnLayout(View view) {
-        layoutNoConnection = view.findViewById(R.id.layoutNoConnection);
+        mLayoutNoConnection = view.findViewById(R.id.layoutNoConnection);
         Button retryButton = view.findViewById(R.id.button_retry);
         retryButton.setOnClickListener(v -> {
-            layoutNoConnection.setVisibility(View.GONE);
+            mLayoutNoConnection.setVisibility(View.GONE);
+            mViewModel.setNoConnection(false);
             fetchDataFromServer();
         });
     }
 
     private void initRecyclerView(View view) {
         mProgressBar = view.findViewById(R.id.progressBar);
-        mProductsRecycler = view.findViewById(R.id.products_recycler);
-        mAdapter = new ProductsAdapter(mListProducts, this);
-        mProductsRecycler.setAdapter(mAdapter);
+        mRecyclerProducts = view.findViewById(R.id.products_recycler);
+        mAdapter = new ProductsAdapter(this);
+        mRecyclerProducts.setAdapter(mAdapter);
     }
 
     private void fetchDataFromServer() {
         mViewModel.initProductsRequest();
         mViewModel.initCoinsRequest();
-    }
-
-    private void checkIfCoinsToOperate() {
-        if (mListCoins.size() > 0) {
-            ResponseModel.Item item = mListCoins.get(0);
-            int quantity = item.getQuantity();
-            if (quantity < 40) {
-                showOutOfOrderAlert();
-            }
-        } else showOutOfOrderAlert();
     }
 
     private void showOutOfOrderAlert() {
@@ -131,23 +129,23 @@ public class ProductsFragment extends BaseFragment<VendingViewModel> implements 
         }
     }
 
+    private void hideOutOfOrderAlert() {
+        if (alertOutOfOrder != null && alertOutOfOrder.isShowing()) {
+            alertOutOfOrder.dismiss();
+        }
+    }
+
     @Override
     public void onProductClick(int position, View v) {
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 200) {
-            return;
-        }
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 200) return;
+
         mViewModel.setSelectedProduct(position);
         mLastClickTime = SystemClock.elapsedRealtime();
         View viewButton = v.findViewById(R.id.product_button);
-        if (mListProducts.get(position).getQuantity() > 0) {
+        if (mViewModel.selectedProductHasQuantity()) {
             viewButton.setBackgroundResource(R.drawable.button_round_background_pressed);
-            ResponseModel.Item itemData = mListProducts.get(position);
-            Bundle bundle = new Bundle();
-            bundle.putString(getString(R.string.item_name_key), itemData.getName());
-            bundle.putDouble(getString(R.string.item_price_key), itemData.getPrice());
-            bundle.putInt(getString(R.string.item_position_key), position);
             NavHostFragment.findNavController(ProductsFragment.this)
-                    .navigate(R.id.action_insert_coins, bundle);
+                    .navigate(R.id.action_insert_coins);
         }
     }
 

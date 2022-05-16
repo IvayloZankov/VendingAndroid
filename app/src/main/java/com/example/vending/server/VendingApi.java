@@ -1,5 +1,9 @@
 package com.example.vending.server;
 
+import static com.example.vending.server.RequestUrl.*;
+
+import com.example.vending.server.response.ResponseModel;
+
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +15,6 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface VendingApi {
-
-    String GET_PRODUCTS = "getProducts";
-    String DECREASE_PRODUCT = "decreaseProduct";
-    String RESET_PRODUCTS = "resetProducts";
-    String GET_COINS = "getCoins";
-    String RESET_COINS = "resetCoins";
-    String UPDATE_COINS = "updateCoins";
 
     @GET(GET_PRODUCTS)
     Single<ResponseModel> getProducts();

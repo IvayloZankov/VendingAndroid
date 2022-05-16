@@ -1,6 +1,6 @@
 package com.example.vending.utils;
 
-import com.example.vending.server.ResponseModel;
+import com.example.vending.server.response.ResponseModel;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,20 +32,6 @@ public class CoinsCounter {
         if (!isPresent) {
             storage.add(storage.size(), new ResponseModel.Item(storage.size(), selectedCoinName, selectedCoinValue, 1));
         }
-    }
-
-    /**
-     * Method adding the new coin value to the coins amount
-     *
-     * @param insertedCoinsAmountTemp - the amount of coins
-     * @param selectedCoinValue   - the coin value in string format
-     * @return - the new coins amount
-     */
-    private double getSumValue(double insertedCoinsAmountTemp, double selectedCoinValue) {
-        BigDecimal sumDeci = new BigDecimal(String.valueOf(insertedCoinsAmountTemp));
-        BigDecimal coinValueDeci = new BigDecimal(String.valueOf(selectedCoinValue));
-        BigDecimal bSum = sumDeci.add(coinValueDeci);
-        return Double.parseDouble(bSum.toString());
     }
 
     /**
